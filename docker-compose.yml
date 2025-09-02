@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mdd-postgres
+    environment:
+      POSTGRES_DB: mdd_db
+      POSTGRES_USER: mdd_user
+      POSTGRES_PASSWORD: mdd_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/sql:/docker-entrypoint-initdb.d
+    networks:
+      - mdd-network
+
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: mdd-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mdd_db
+      SPRING_DATASOURCE_USERNAME: mdd_user
+      SPRING_DATASOURCE_PASSWORD: mdd_password
+      JWT_SECRET: mySecretKey
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - mdd-network
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: mdd-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - mdd-network
+
+volumes:
+  postgres_data:
+
+networks:
+  mdd-network:
+    driver: bridge
