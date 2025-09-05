@@ -48,21 +48,15 @@ public class AuthController {
      * @return AuthResponse with JWT token and user info
      */
     @PostMapping("/register")
-    @Operation(summary = "Register a new user", 
-               description = "Create a new user account and return JWT token for immediate login")
+    @Operation(summary = "Register a new user", description = "Create a new user account and return JWT token for immediate login")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", 
-                    description = "User successfully registered",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(responseCode = "400", 
-                    description = "Invalid input data or email already exists"),
-        @ApiResponse(responseCode = "500", 
-                    description = "Internal server error")
+            @ApiResponse(responseCode = "201", description = "User successfully registered", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data or email already exists"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest,
-                                    BindingResult bindingResult) {
-        
+            BindingResult bindingResult) {
+
         logger.info("Registration attempt for email: {}", registerRequest.getEmail());
 
         // Check for validation errors
@@ -76,15 +70,15 @@ public class AuthController {
             AuthResponse response = authService.register(registerRequest);
             logger.info("User registered successfully: {}", registerRequest.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            
+
         } catch (IllegalArgumentException e) {
             logger.warn("Registration failed - {}: {}", e.getMessage(), registerRequest.getEmail());
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("Registration failed", e.getMessage()));
-                    
+
         } catch (Exception e) {
-            logger.error("Unexpected error during registration for {}: {}", 
-                        registerRequest.getEmail(), e.getMessage());
+            logger.error("Unexpected error during registration for {}: {}",
+                    registerRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error", "Registration temporarily unavailable"));
         }
@@ -93,28 +87,21 @@ public class AuthController {
     /**
      * Authenticate user and generate JWT token
      * 
-     * @param loginRequest User login credentials
+     * @param loginRequest  User login credentials
      * @param bindingResult Validation result
      * @return AuthResponse with JWT token and user info
      */
     @PostMapping("/login")
-    @Operation(summary = "User login", 
-               description = "Authenticate user credentials and return JWT token")
+    @Operation(summary = "User login", description = "Authenticate user credentials and return JWT token")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", 
-                    description = "Login successful",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(responseCode = "400", 
-                    description = "Invalid input data"),
-        @ApiResponse(responseCode = "401", 
-                    description = "Invalid credentials"),
-        @ApiResponse(responseCode = "500", 
-                    description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
-                                 BindingResult bindingResult) {
-        
+            BindingResult bindingResult) {
+
         logger.info("Login attempt for email: {}", loginRequest.getEmail());
 
         // Check for validation errors
@@ -128,15 +115,15 @@ public class AuthController {
             AuthResponse response = authService.login(loginRequest);
             logger.info("User logged in successfully: {}", loginRequest.getEmail());
             return ResponseEntity.ok(response);
-            
+
         } catch (RuntimeException e) {
             logger.warn("Login failed for {}: {}", loginRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Authentication failed", "Invalid email or password"));
-                    
+
         } catch (Exception e) {
-            logger.error("Unexpected error during login for {}: {}", 
-                        loginRequest.getEmail(), e.getMessage());
+            logger.error("Unexpected error during login for {}: {}",
+                    loginRequest.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error", "Login temporarily unavailable"));
         }
@@ -149,20 +136,14 @@ public class AuthController {
      * @return UserResponse with current user details
      */
     @GetMapping("/me")
-    @Operation(summary = "Get current user profile", 
-               description = "Retrieve profile information for the currently authenticated user")
+    @Operation(summary = "Get current user profile", description = "Retrieve profile information for the currently authenticated user")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", 
-                    description = "Profile retrieved successfully",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = UserResponse.class))),
-        @ApiResponse(responseCode = "401", 
-                    description = "Not authenticated"),
-        @ApiResponse(responseCode = "404", 
-                    description = "User not found")
+            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Not authenticated", "Please login to access this resource"));
@@ -171,10 +152,10 @@ public class AuthController {
         try {
             String email = authentication.getName();
             logger.debug("Fetching profile for user: {}", email);
-            
+
             UserResponse userResponse = authService.getCurrentUser(email);
             return ResponseEntity.ok(userResponse);
-            
+
         } catch (Exception e) {
             logger.error("Error fetching user profile: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -198,7 +179,8 @@ public class AuthController {
     private String getValidationErrors(BindingResult bindingResult) {
         StringBuilder errors = new StringBuilder();
         bindingResult.getAllErrors().forEach(error -> {
-            if (errors.length() > 0) errors.append("; ");
+            if (errors.length() > 0)
+                errors.append("; ");
             errors.append(error.getDefaultMessage());
         });
         return errors.toString();
@@ -217,10 +199,20 @@ public class AuthController {
         }
 
         // Getters and setters
-        public String getError() { return error; }
-        public void setError(String error) { this.error = error; }
-        
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 }

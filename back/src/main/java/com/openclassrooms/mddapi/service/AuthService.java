@@ -1,7 +1,6 @@
 package com.openclassrooms.mddapi.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -11,8 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,7 @@ import com.openclassrooms.mddapi.model.User;
 import com.openclassrooms.mddapi.repository.UserRepository;
 
 @Service
-public class AuthService implements UserDetailsService{
+public class AuthService {
     
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
@@ -125,35 +122,6 @@ public class AuthService implements UserDetailsService{
                 user.getUpdatedAt());
     }
 
-    /**
-     * Implementation of UserDetailsService interface
-     * Used by Spring Security for authentication
-     */
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        logger.debug("Loading user by email: {}", email);
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-        if (userOptional.isEmpty()) {
-            logger.warn("User not found with email: {}", email);
-            throw new UsernameNotFoundException("User not found with email: " + email);
-        }
-
-        User user = userOptional.get();
-        logger.debug("User loaded successfully: {}", email);
-
-        // Return Spring Security UserDetails object
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .authorities(new ArrayList<>()) // Empty authorities for now
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
-                .build();
-    }
 
     public UserResponse getUserById(Long id) {
         logger.debug("Fetching user info for ID: {}", id);

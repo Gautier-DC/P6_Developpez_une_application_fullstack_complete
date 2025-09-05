@@ -36,14 +36,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsService customUserDetailsService;
 
     public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                          JwtAuthenticationFilter jwtAuthenticationFilter,
-                         UserDetailsService userDetailsService) {
+                         UserDetailsService customUserDetailsService) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     /**
@@ -56,20 +56,23 @@ public class SecurityConfig {
             // Disable CSRF (not needed for JWT)
             .csrf(AbstractHttpConfigurer::disable)
             
+            // Disable HTTP Basic authentication
+            .httpBasic(AbstractHttpConfigurer::disable)
+            
+            // Disable form login
+            .formLogin(AbstractHttpConfigurer::disable)
+            
             // Configure CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
             // Configure authorization rules
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints (no authentication required)
-                .requestMatchers(
-                    "/api/auth/**",              // Authentication endpoints
-                    "/v3/api-docs/**",           // OpenAPI documentation
-                    "/swagger-ui/**",            // Swagger UI
-                    "/swagger-ui.html",          // Swagger UI
-                    "/actuator/health"           // Health check
-                ).permitAll()
-                
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
@@ -108,7 +111,7 @@ public class SecurityConfig {
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
