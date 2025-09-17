@@ -1,0 +1,84 @@
+<!-- header.component.html -->
+<header
+  class="header"
+  [class.header--with-separator]="finalConfig.showSeparator"
+  [class.header--logo-center]="finalConfig.logoPosition === 'center'"
+>
+  <!-- Left section -->
+  @if(finalConfig.showBackButton) {
+  <button class="header__back-btn" (click)="onBackClick()" aria-label="Go back">
+    <mat-icon class="mat-arrow-back">arrow_back</mat-icon>
+  </button>
+  }
+  <div class="header__left">
+    <div
+      class="header__logo"
+      [class.header__logo--small]="finalConfig.logoSize === 'small'"
+      [class.header__logo--large]="finalConfig.logoSize === 'large'"
+      [class.header__logo--center]="finalConfig.logoPosition === 'center'"
+      (click)="onLogoClick()"
+    >
+      <img src="assets/logo_p6.png" alt="MDD Logo" class="logo" />
+    </div>
+  </div>
+
+  <!-- Center section (for centered logo) -->
+  @if(finalConfig.logoPosition === 'center') {
+  <div class="header__center">
+    <div class="header__logo header__logo--large" (click)="onLogoClick()">
+      <img src="assets/logo_p6.png" alt="MDD Logo" class="logo" />
+    </div>
+    @if(finalConfig.title) {
+    <h1 class="header__title">
+      {{ finalConfig.title }}
+    </h1>
+    }
+  </div>
+  }
+
+  <!-- Right section -->
+  <div class="header__right">
+    <!-- Desktop Navigation -->
+    @if(finalConfig.showNavigation) {
+    <nav class="header__nav header__nav--desktop">
+      <a href="#" class="header__nav-link header__nav-link--logout"
+        >Se déconnecter</a
+      >
+      <a routerLink="/articles" class="header__nav-link">Articles</a>
+      <a routerLink="/themes" class="header__nav-link">Thèmes</a>
+    </nav>
+    }
+
+    <!-- User Profile -->
+    @if(finalConfig.showUserProfile) {
+    <button
+      class="header__user-profile"
+      (click)="onUserProfileClick()"
+      aria-label="User profile"
+    >
+      <div class="header__avatar"></div>
+    </button>
+    }
+    <!-- Burger Menu (Mobile) -->
+    @if(finalConfig.showBurgerMenu) {
+    <button
+      class="header__burger"
+      (click)="onBurgerMenuClick()"
+      aria-label="Open menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span></button
+    >}
+  </div>
+
+  <!-- Page Title (when not centered) -->
+  @if(finalConfig.title && finalConfig.logoPosition !== 'center') {
+  <h1
+    *ngIf="finalConfig.title && finalConfig.logoPosition !== 'center'"
+    class="header__page-title"
+  >
+    {{ finalConfig.title }}
+  </h1>
+  }
+</header>

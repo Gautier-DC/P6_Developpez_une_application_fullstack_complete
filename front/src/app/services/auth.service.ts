@@ -22,7 +22,7 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly API_URL = 'http://localhost:8082/api/auth';
   
   // Signals for reactive state management
   private readonly _currentUser = signal<UserResponse | null>(null);

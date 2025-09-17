@@ -1,10 +1,9 @@
-package com.openclassrooms.mddapi.service;
+package com.openclassrooms.mddapi.service.impl;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,14 +16,14 @@ import com.openclassrooms.mddapi.repository.UserRepository;
  * Custom UserDetailsService implementation for JWT authentication
  * Separated from AuthService to avoid circular dependencies
  */
+@Slf4j
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
     
-    private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
     
     private final UserRepository userRepository;
     
-    public CustomUserDetailsService(UserRepository userRepository) {
+    public CustomUserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
     
@@ -34,17 +33,17 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        logger.debug("Loading user by email: {}", email);
+        log.debug("Loading user by email: {}", email);
         
         Optional<User> userOptional = userRepository.findByEmail(email);
         
         if (userOptional.isEmpty()) {
-            logger.warn("User not found with email: {}", email);
+            log.warn("User not found with email: {}", email);
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
         
         User user = userOptional.get();
-        logger.debug("User loaded successfully: {}", email);
+        log.debug("User loaded successfully: {}", email);
         
         // Return Spring Security UserDetails object
         return org.springframework.security.core.userdetails.User.builder()

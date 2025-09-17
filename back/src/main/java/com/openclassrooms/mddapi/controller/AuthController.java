@@ -1,12 +1,12 @@
 package com.openclassrooms.mddapi.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.openclassrooms.mddapi.dto.request.LoginRequest;
 import com.openclassrooms.mddapi.dto.request.RegisterRequest;
@@ -26,13 +26,12 @@ import jakarta.validation.Valid;
  * Authentication Controller
  * Handles user registration, login, and profile management
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Authentication", description = "User authentication and registration APIs")
 public class AuthController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
@@ -54,34 +53,13 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Invalid input data or email already exists"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest,
-            BindingResult bindingResult) {
-
-        logger.info("Registration attempt for email: {}", registerRequest.getEmail());
-
-        // Check for validation errors
-        if (bindingResult.hasErrors()) {
-            logger.warn("Registration validation failed for email: {}", registerRequest.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Validation failed", getValidationErrors(bindingResult)));
-        }
-
-        try {
-            AuthResponse response = authService.register(registerRequest);
-            logger.info("User registered successfully: {}", registerRequest.getEmail());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (IllegalArgumentException e) {
-            logger.warn("Registration failed - {}: {}", e.getMessage(), registerRequest.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Registration failed", e.getMessage()));
-
-        } catch (Exception e) {
-            logger.error("Unexpected error during registration for {}: {}",
-                    registerRequest.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Internal server error", "Registration temporarily unavailable"));
-        }
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        log.info("Registration attempt for email: {}", registerRequest.getEmail());
+        
+        AuthResponse response = authService.register(registerRequest);
+        log.info("User registered successfully: {}", registerRequest.getEmail());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -99,34 +77,13 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
-            BindingResult bindingResult) {
-
-        logger.info("Login attempt for email: {}", loginRequest.getEmail());
-
-        // Check for validation errors
-        if (bindingResult.hasErrors()) {
-            logger.warn("Login validation failed for email: {}", loginRequest.getEmail());
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Validation failed", getValidationErrors(bindingResult)));
-        }
-
-        try {
-            AuthResponse response = authService.login(loginRequest);
-            logger.info("User logged in successfully: {}", loginRequest.getEmail());
-            return ResponseEntity.ok(response);
-
-        } catch (RuntimeException e) {
-            logger.warn("Login failed for {}: {}", loginRequest.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Authentication failed", "Invalid email or password"));
-
-        } catch (Exception e) {
-            logger.error("Unexpected error during login for {}: {}",
-                    loginRequest.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Internal server error", "Login temporarily unavailable"));
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        log.info("Login attempt for email: {}", loginRequest.getEmail());
+        
+        AuthResponse response = authService.login(loginRequest);
+        log.info("User logged in successfully: {}", loginRequest.getEmail());
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -142,25 +99,40 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Not authenticated"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        log.debug("Fetching profile for user: {}", email);
+        
+        UserResponse userResponse = authService.getCurrentUser(email);
+        return ResponseEntity.ok(userResponse);
+    }
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Not authenticated", "Please login to access this resource"));
+    /**
+     * Logout user by invalidating JWT token
+     * 
+     * @param request HTTP request to extract Authorization header
+     * @return Success message
+     */
+    @PostMapping("/logout")
+    @Operation(summary = "User logout", description = "Invalidate JWT token by adding it to blacklist")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Logout successful"),
+            @ApiResponse(responseCode = "401", description = "No valid token provided"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Logout attempt without valid Authorization header");
+            return ResponseEntity.badRequest().body("No valid token provided");
         }
-
-        try {
-            String email = authentication.getName();
-            logger.debug("Fetching profile for user: {}", email);
-
-            UserResponse userResponse = authService.getCurrentUser(email);
-            return ResponseEntity.ok(userResponse);
-
-        } catch (Exception e) {
-            logger.error("Error fetching user profile: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("User not found", "Profile information unavailable"));
-        }
+        
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        authService.logout(token);
+        
+        log.info("User logout successful");
+        return ResponseEntity.ok("Logout successful");
     }
 
     /**
@@ -173,46 +145,4 @@ public class AuthController {
         return ResponseEntity.ok("Authentication service is running");
     }
 
-    /**
-     * Extract validation error messages from BindingResult
-     */
-    private String getValidationErrors(BindingResult bindingResult) {
-        StringBuilder errors = new StringBuilder();
-        bindingResult.getAllErrors().forEach(error -> {
-            if (errors.length() > 0)
-                errors.append("; ");
-            errors.append(error.getDefaultMessage());
-        });
-        return errors.toString();
-    }
-
-    /**
-     * Standard error response structure
-     */
-    public static class ErrorResponse {
-        private String error;
-        private String message;
-
-        public ErrorResponse(String error, String message) {
-            this.error = error;
-            this.message = message;
-        }
-
-        // Getters and setters
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
 }

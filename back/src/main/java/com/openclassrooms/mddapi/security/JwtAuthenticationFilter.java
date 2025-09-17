@@ -2,8 +2,7 @@ package com.openclassrooms.mddapi.security;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.openclassrooms.mddapi.service.JwtService;
+import com.openclassrooms.mddapi.service.TokenBlacklistService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,17 +25,21 @@ import jakarta.servlet.http.HttpServletResponse;
  * Intercepts all HTTP requests to check for JWT tokens in Authorization header
  * If valid token found, sets authentication in Spring Security context
  */
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     
     private final JwtService jwtService;
     private final UserDetailsService customUserDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
     
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService customUserDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, 
+                                  UserDetailsService customUserDetailsService,
+                                  TokenBlacklistService tokenBlacklistService) {
         this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
@@ -58,6 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         
         try {
+            // Check if token is blacklisted
+            if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
+                log.warn("Attempted to use blacklisted token");
+                filterChain.doFilter(request, response);
+                return;
+            }
+            
             // Extract email from JWT token
             userEmail = jwtService.extractUsername(jwt);
             
@@ -83,13 +94,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Set authentication in security context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     
-                    logger.debug("JWT authentication successful for user: {}", userEmail);
+                    log.debug("JWT authentication successful for user: {}", userEmail);
                 } else {
-                    logger.warn("Invalid JWT token for user: {}", userEmail);
+                    log.warn("Invalid JWT token for user: {}", userEmail);
                 }
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage());
+            log.warn("JWT authentication failed: {}", e.getMessage());
         }
         
         filterChain.doFilter(request, response);
