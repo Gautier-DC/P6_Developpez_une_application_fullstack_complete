@@ -1,0 +1,34 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+
+@Component({
+  selector: 'app-back-button',
+  standalone: true,
+  imports: [MatIconModule],
+  templateUrl: './back-button.component.html',
+  styleUrls: ['./back-button.component.scss']
+})
+export class BackButtonComponent {
+  @Input() customRoute?: string; // Route personnalisée si besoin
+  @Input() ariaLabel: string = 'Go back';
+  @Output() backClick = new EventEmitter<void>();
+
+  constructor(
+    private location: Location,
+    private router: Router
+  ) {}
+
+  onBackClick(): void {
+    // Émettre l'événement pour le composant parent
+    this.backClick.emit();
+    
+    // Logique de navigation
+    if (this.customRoute) {
+      this.router.navigate([this.customRoute]);
+    } else {
+      this.location.back();
+    }
+  }
+}

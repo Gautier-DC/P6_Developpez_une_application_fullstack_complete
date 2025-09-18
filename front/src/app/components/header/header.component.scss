@@ -1,0 +1,104 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 1rem;
+  border-bottom: 1px solid #000;
+  height: 94px;
+
+  @media (max-width: 768px) {
+    height: 64px;
+  }
+
+  // Left section
+  &__left {
+    display: flex;
+    align-items: center;
+  }
+
+  // Logo
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    img {
+      max-width: 140px;
+      max-height: 80px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+
+  // Spacer to push content to right
+  &__spacer {
+    flex: 1 1 auto;
+  }
+
+  // Navigation
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--desktop {
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
+  }
+
+  &__nav-link {
+    color: #000;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+
+    &:hover {
+      color: var(--color-primary-light) !important;
+    }
+
+    &--logout {
+      color: #f44336;
+
+      &:hover {
+        color: #d43025 !important;
+        background-color: rgba(244, 67, 54, 0.2) !important;
+      }
+    }
+  }
+
+  // User Profile
+  &__user-profile {
+    color: #d9d9d9;
+  }
+
+  // Burger Menu (Mobile only)
+  &__burger {
+    color: #000;
+
+    &--mobile {
+      display: none;
+
+      @media (max-width: 768px) {
+        display: flex;
+      }
+    }
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    padding: 0 0.5rem !important;
+
+    &__logo img {
+      max-width: 92px;
+      max-height: 53px;
+    }
+  }
+}
