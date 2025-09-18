@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.openclassrooms.mddapi.dto.request.LoginRequest;
 import com.openclassrooms.mddapi.dto.request.RegisterRequest;
+import com.openclassrooms.mddapi.dto.request.UpdateProfileRequest;
 import com.openclassrooms.mddapi.dto.response.AuthResponse;
 import com.openclassrooms.mddapi.dto.response.UserResponse;
 import com.openclassrooms.mddapi.exception.UserAlreadyExistsException;
@@ -137,6 +138,82 @@ public class AuthServiceImpl implements AuthService {
                 user.getUsername(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
+    }
+    
+    @Override
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
+        log.info("Updating profile for user: {}", email);
+        log.debug("Update request data: username={}, email={}, password provided={}",
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword() != null && !request.getPassword().isEmpty());
+        
+        try {
+            // Find the user by email
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+            
+            log.debug("Found user: id={}, email={}, username={}", user.getId(), user.getEmail(), user.getUsername());
+        
+        boolean isUpdated = false;
+        
+        // Update username if provided
+        if (request.getUsername() != null && !request.getUsername().trim().isEmpty()) {
+            String newUsername = request.getUsername().trim();
+            if (!newUsername.equals(user.getUsername())) {
+                // Check if username is already taken
+                if (userRepository.findByUsername(newUsername).isPresent()) {
+                    throw new UserAlreadyExistsException("Username already exists: " + newUsername);
+                }
+                user.setUsername(newUsername);
+                isUpdated = true;
+                log.info("Username updated to: {}", newUsername);
+            }
+        }
+        
+        // Update email if provided
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            String newEmail = request.getEmail().trim();
+            if (!newEmail.equals(user.getEmail())) {
+                // Check if email is already taken
+                if (userRepository.findByEmail(newEmail).isPresent()) {
+                    throw new UserAlreadyExistsException("Email already exists: " + newEmail);
+                }
+                user.setEmail(newEmail);
+                isUpdated = true;
+                log.info("Email updated to: {}", newEmail);
+            }
+        }
+        
+        // Update password if provided
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+            user.setPassword(encodedPassword);
+            isUpdated = true;
+            log.info("Password updated for user: {}", email);
+        }
+        
+        // Save only if there were changes
+        if (isUpdated) {
+            // Remove manual timestamp setting - let @UpdateTimestamp handle it
+            user = userRepository.save(user);
+            log.info("Profile updated successfully for user: {}", email);
+        } else {
+            log.info("No changes detected for user profile: {}", email);
+        }
+        
+            // Return updated user response
+            return new UserResponse(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getUsername(),
+                    user.getCreatedAt(),
+                    user.getUpdatedAt());
+                    
+        } catch (Exception e) {
+            log.error("Error updating profile for user {}: {}", email, e.getMessage(), e);
+            throw e;
+        }
     }
     
     @Override

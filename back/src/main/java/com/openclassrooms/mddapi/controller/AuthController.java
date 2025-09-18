@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import com.openclassrooms.mddapi.dto.request.LoginRequest;
 import com.openclassrooms.mddapi.dto.request.RegisterRequest;
+import com.openclassrooms.mddapi.dto.request.UpdateProfileRequest;
 import com.openclassrooms.mddapi.dto.response.AuthResponse;
 import com.openclassrooms.mddapi.dto.response.UserResponse;
 import com.openclassrooms.mddapi.service.AuthService;
@@ -108,6 +109,42 @@ public class AuthController {
     }
 
     /**
+     * Update current user profile information
+     * 
+     * @param updateRequest Profile update data (username, email, password)
+     * @param authentication Spring Security authentication object
+     * @return Updated UserResponse
+     */
+    @PutMapping("/update-profile")
+    @Operation(summary = "Update user profile", description = "Update profile information for the currently authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data or username/email already exists"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<UserResponse> updateProfile(@RequestBody UpdateProfileRequest updateRequest, 
+                                                     Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            log.info("Profile update request for user: {}", email);
+            log.debug("Request data - username: {}, email: {}, password provided: {}", 
+                     updateRequest.getUsername(), 
+                     updateRequest.getEmail(), 
+                     updateRequest.getPassword() != null && !updateRequest.getPassword().isEmpty());
+            
+            UserResponse updatedUser = authService.updateProfile(email, updateRequest);
+            log.info("Profile updated successfully for user: {}", email);
+            
+            return ResponseEntity.ok(updatedUser);
+            
+        } catch (Exception e) {
+            log.error("Error during profile update: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
      * Logout user by invalidating JWT token
      * 
      * @param request HTTP request to extract Authorization header
@@ -134,6 +171,7 @@ public class AuthController {
         log.info("User logout successful");
         return ResponseEntity.ok("Logout successful");
     }
+
 
     /**
      * Health check endpoint for authentication service

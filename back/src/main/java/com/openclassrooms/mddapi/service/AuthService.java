@@ -2,6 +2,7 @@ package com.openclassrooms.mddapi.service;
 
 import com.openclassrooms.mddapi.dto.request.LoginRequest;
 import com.openclassrooms.mddapi.dto.request.RegisterRequest;
+import com.openclassrooms.mddapi.dto.request.UpdateProfileRequest;
 import com.openclassrooms.mddapi.dto.response.AuthResponse;
 import com.openclassrooms.mddapi.dto.response.UserResponse;
 
@@ -31,6 +32,15 @@ public interface AuthService {
      * Get user information by ID
      */
     UserResponse getUserById(Long id);
+    
+    /**
+     * Update user profile information
+     * 
+     * @param email Current user email
+     * @param request Update profile request with optional fields
+     * @return Updated user information
+     */
+    UserResponse updateProfile(String email, UpdateProfileRequest request);
     
     /**
      * Logout user by blacklisting their JWT token

@@ -1,0 +1,97 @@
+<main>
+  <!-- Profile Form Section -->
+  <section>
+    <div class="container">
+      <h1 class="profile-title">Profil utilisateur</h1>
+      <mat-card class="profile-form">
+        <mat-card-content>
+          <form class="profile-form-content">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Username</mat-label>
+              <input
+                matInput
+                [(ngModel)]="userProfile.username"
+                name="username"
+                placeholder="Username"
+                required
+                [disabled]="isLoading"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                [(ngModel)]="userProfile.email"
+                name="email"
+                placeholder="email@email.fr"
+                required
+                [disabled]="isLoading"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Mot de passe</mat-label>
+              <input
+                matInput
+                type="password"
+                [(ngModel)]="userProfile.password"
+                name="password"
+                placeholder="Mot de passe (optionnel)"
+                [disabled]="isLoading"
+              />
+              <mat-hint
+                >Laisser vide pour conserver le mot de passe actuel</mat-hint
+              >
+            </mat-form-field>
+
+            <button
+              mat-raised-button
+              color="primary"
+              class="save-button"
+              [disabled]="isLoading"
+              (click)="onSaveProfile()"
+            >
+              @if (isLoading) {
+              <mat-spinner
+                diameter="20"
+                style="margin-right: 8px"
+              ></mat-spinner>
+              Mise à jour... } @else { Sauvegarder }
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Subscriptions Section -->
+    <div class="subscriptions-section">
+      <div class="section-divider"></div>
+
+      <h2 class="subscriptions-title">Abonnements</h2>
+
+      <div class="subscriptions-grid">
+        @for (subscription of subscriptions; track subscription.title; let i =
+        $index) {
+        <mat-card class="subscription-card">
+          <mat-card-content>
+            <h3 class="subscription-title">{{ subscription.title }}</h3>
+            <p class="subscription-description">
+              <strong>Description:</strong> {{ subscription.description }}
+            </p>
+            <button
+              mat-raised-button
+              color="primary"
+              class="unsubscribe-button"
+              (click)="onUnsubscribe(i)"
+            >
+              Se désabonner
+            </button>
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </div>
+  </section>
+</main>

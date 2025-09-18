@@ -33,11 +33,11 @@ export const routes: Routes = [
   //   loadComponent: () => import('./pages/themes/themes.component').then(m => m.ThemesComponent),
   //   canActivate: [authGuard]
   // },
-  // { 
-  //   path: 'profile', 
-  //   loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
-  //   canActivate: [authGuard]
-  // },
+  { 
+    path: 'profile', 
+    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
+    canActivate: [authGuard]
+  },
   
   // Page 404 - redirection vers home
   { 

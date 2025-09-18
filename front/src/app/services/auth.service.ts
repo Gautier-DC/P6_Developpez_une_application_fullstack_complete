@@ -9,6 +9,7 @@ import {
   RegisterRequest, 
   AuthResponse, 
   UserResponse, 
+  UpdateProfileRequest,
   ErrorResponse,
   AUTH_STORAGE_KEYS 
 } from '../models/auth.models';
@@ -22,7 +23,7 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8082/api/auth';
+  private readonly API_URL = 'http://localhost:8080/api/auth';
   
   // Signals for reactive state management
   private readonly _currentUser = signal<UserResponse | null>(null);
@@ -109,6 +110,34 @@ export class AuthService {
       .pipe(
         tap(user => this._currentUser.set(user)),
         catchError(error => this.handleAuthError('Failed to get user profile', error))
+      );
+  }
+
+  /**
+   * Update user profile
+   * @param profileData - Profile update request with username, email, and/or password
+   * @returns Observable<UserResponse>
+   */
+  updateProfile(profileData: UpdateProfileRequest): Observable<UserResponse> {
+    // Manually add Authorization header as fallback (like logout)
+    const headers = {
+      'Authorization': `Bearer ${this._token()}`,
+      'Content-Type': 'application/json'
+    };
+
+    console.log('🔍 Debug updateProfile - Token exists:', !!this._token());
+    console.log('🔍 Debug updateProfile - ProfileData:', profileData);
+    console.log('🔍 Debug updateProfile - Headers:', headers);
+
+    return this.http.put<UserResponse>(`${this.API_URL}/update-profile`, profileData, { headers })
+      .pipe(
+        tap(updatedUser => {
+          // Update current user in state
+          this._currentUser.set(updatedUser);
+          // Update stored user data
+          localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+        }),
+        catchError(error => this.handleAuthError('Failed to update profile', error))
       );
   }
 
