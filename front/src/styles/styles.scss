@@ -1,11 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
-:root{
-    --gap-md: 2rem;
-    --gap-sm: 1rem;
-    --gap-xs: 0.5rem;
+:root {
+  --gap-md: 2rem;
+  --gap-sm: 1rem;
+  --gap-xs: 0.5rem;
+  --color-primary: #7763c5;
+  --color-primary-light: #6c5ccf;
 }
 
 html,
@@ -31,16 +35,16 @@ body {
   gap: 1rem;
 }
 
-.justify-center{
+.justify-center {
   justify-content: center;
 }
 
-.justify-between{
+.justify-between {
   justify-content: space-between;
 }
 
 .w-full {
-    width: 100%;
+  width: 100%;
 }
 
 .title {
@@ -50,12 +54,54 @@ body {
   margin-bottom: 1.9rem;
 }
 
-.main-container {
+main {
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: stretch;
+  align-items: start;
   min-height: 90vh;
   padding: 1rem;
   width: 100%;
+}
+
+section {
+  display: block;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* Pour écrans très larges */
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1400px;
+  }
+}
+
+/* Pour écrans 4K+ */
+@media (min-width: 2560px) {
+  .container {
+    max-width: 1600px;
+  }
+}
+
+.logo-hero {
+  display: block;
+  margin: 0 auto 2rem auto;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  @media screen and (min-width:600px) {
+    display: none;
+  }
 }

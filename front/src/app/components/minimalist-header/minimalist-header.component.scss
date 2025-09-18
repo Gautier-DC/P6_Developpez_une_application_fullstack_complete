@@ -1,0 +1,41 @@
+.minimalist-header {
+  display: none;
+  padding: 1rem;
+  border-bottom: 1px solid #000;
+  height: 94px;
+
+  &__left {
+    display: flex;
+    align-items: center;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    img {
+      max-width: 140px;
+      max-height: 80px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    max-width: 1280px;
+  }
+
+  @media (min-width: 768px) {
+    display:block;
+  }
+}

@@ -1,96 +1,103 @@
-<main class="main-container">
-    <div class="register-card">
-    <mat-card>
-      <h1 class="title">Inscription</h1>
-      <mat-card-content>
-        <form
-          [formGroup]="registerForm"
-          (ngSubmit)="onSubmit()"
-          class="register-form"
-        >
-          <!-- Username field -->
-          <mat-label>Nom d'utilisateur</mat-label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="username"
-              placeholder="Votre nom d'utilisateur"
-            />
-            @if (registerForm.get('username')?.hasError('required')) {
-            <mat-error> Le nom d'utilisateur est requis </mat-error>
-            } @if(registerForm.get('username')?.hasError('minlength')) {
-            <mat-error> Au moins 3 caractères requis </mat-error>}
-          </mat-form-field>
-
-          <!-- Email field -->
-          <mat-label>Adresse email</mat-label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              type="email"
-              formControlName="email"
-              placeholder="votre@email.com"
-            />
-            @if (registerForm.get('email')?.hasError('required')) {
-            <mat-error> L'email est requis </mat-error>
-            } @if (registerForm.get('email')?.hasError('email')) {
-            <mat-error> Format d'email invalide </mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Password field -->
-          <mat-label>Mot de passe</mat-label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              [type]="hidePassword ? 'password' : 'text'"
-              formControlName="password"
-              placeholder="Votre mot de passe"
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="hidePassword = !hidePassword"
-              type="button"
+<app-minimalist-header></app-minimalist-header>
+<main>
+  <section>
+    <div class="container">
+      <app-back-button></app-back-button>
+      <img src="assets/logo_p6.png" alt="MDD Logo" class="logo-hero" />
+      <div class="register-card">
+        <mat-card>
+          <h1 class="title">Inscription</h1>
+          <mat-card-content>
+            <form
+              [formGroup]="registerForm"
+              (ngSubmit)="onSubmit()"
+              class="register-form"
             >
-              <mat-icon>{{
-                hidePassword ? "visibility_off" : "visibility"
-              }}</mat-icon>
-            </button>
-            @if (registerForm.get('password')?.hasError('required')) {
-            <mat-error> Le mot de passe est requis </mat-error>
-            } @if (registerForm.get('password')?.hasError('minlength')) {
-            <mat-error> Au moins 6 caractères requis </mat-error>
-            }
-          </mat-form-field>
+              <!-- Username field -->
+              <mat-label>Nom d'utilisateur</mat-label>
+              <mat-form-field appearance="outline">
+                <input
+                  matInput
+                  formControlName="username"
+                  placeholder="Votre nom d'utilisateur"
+                />
+                @if (registerForm.get('username')?.hasError('required')) {
+                <mat-error> Le nom d'utilisateur est requis </mat-error>
+                } @if(registerForm.get('username')?.hasError('minlength')) {
+                <mat-error> Au moins 3 caractères requis </mat-error>}
+              </mat-form-field>
 
-          <!-- Error message -->
-          @if (errorMessage) {
-          <div class="error-message">
-            <mat-icon color="warn">error</mat-icon>
-            <span>{{ errorMessage }}</span>
-          </div>
-          }
+              <!-- Email field -->
+              <mat-label>Adresse email</mat-label>
+              <mat-form-field appearance="outline">
+                <input
+                  matInput
+                  type="email"
+                  formControlName="email"
+                  placeholder="votre@email.com"
+                />
+                @if (registerForm.get('email')?.hasError('required')) {
+                <mat-error> L'email est requis </mat-error>
+                } @if (registerForm.get('email')?.hasError('email')) {
+                <mat-error> Format d'email invalide </mat-error>
+                }
+              </mat-form-field>
 
-          <!-- Submit button -->
-          <div class="button-container">
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="registerForm.invalid || isLoading"
-            >
-              @if (isLoading) {
-              <mat-spinner diameter="20"></mat-spinner>
-              Inscription... } @else { S'inscrire }
-            </button>
+              <!-- Password field -->
+              <mat-label>Mot de passe</mat-label>
+              <mat-form-field appearance="outline">
+                <input
+                  matInput
+                  [type]="hidePassword ? 'password' : 'text'"
+                  formControlName="password"
+                  placeholder="Votre mot de passe"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  (click)="hidePassword = !hidePassword"
+                  type="button"
+                >
+                  <mat-icon>{{
+                    hidePassword ? "visibility_off" : "visibility"
+                  }}</mat-icon>
+                </button>
+                @if (registerForm.get('password')?.hasError('required')) {
+                <mat-error> Le mot de passe est requis </mat-error>
+                } @if (registerForm.get('password')?.hasError('minlength')) {
+                <mat-error> Au moins 6 caractères requis </mat-error>
+                }
+              </mat-form-field>
 
-            <a matButton type="link" (click)="goToLogin()">
-              Déjà un compte ? Se connecter
-            </a>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
+              <!-- Error message -->
+              @if (errorMessage) {
+              <div class="error-message">
+                <mat-icon color="warn">error</mat-icon>
+                <span>{{ errorMessage }}</span>
+              </div>
+              }
+
+              <!-- Submit button -->
+              <div class="button-container">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="registerForm.invalid || isLoading"
+                >
+                  @if (isLoading) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                  Inscription... } @else { S'inscrire }
+                </button>
+
+                <a matButton type="link" (click)="goToLogin()">
+                  Déjà un compte ? Se connecter
+                </a>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
 </main>

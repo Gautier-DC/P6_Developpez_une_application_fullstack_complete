@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models/register-request';
+import { MinimalistHeaderComponent } from "src/app/components/minimalist-header/minimalist-header.component";
+import { BackButtonComponent } from "src/app/components/back-button/back-button.component";
 
 @Component({
   selector: 'app-register',
@@ -23,6 +25,8 @@ import { RegisterRequest } from '../../models/register-request';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MinimalistHeaderComponent,
+    BackButtonComponent
 ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'

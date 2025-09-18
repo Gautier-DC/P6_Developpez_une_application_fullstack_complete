@@ -16,7 +16,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Skip auth header for public endpoints
+    // Skip auth header for public endpoints (but NOT logout which needs the token)
     const publicEndpoints = ['/api/auth/login', '/api/auth/register'];
     const isPublicEndpoint = publicEndpoints.some(endpoint => req.url.includes(endpoint));
     
@@ -30,6 +30,9 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.authService.getToken();
     
     if (token) {
+      console.log('🔍 Interceptor - Adding token to request:', req.url);
+      console.log('🔍 Interceptor - Token exists:', !!token);
+      
       const authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
@@ -37,6 +40,8 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(authReq).pipe(
         catchError(error => this.handleError(error))
       );
+    } else {
+      console.log('🔍 Interceptor - No token for request:', req.url);
     }
 
     return next.handle(req).pipe(
@@ -49,8 +54,16 @@ export class AuthInterceptor implements HttpInterceptor {
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 401) {
-      // Token is invalid or expired, clear authentication
-      this.authService.logout();
+      // Skip logout handling if this is already a logout request to avoid infinite loop
+      const isLogoutRequest = error.url?.includes('/api/auth/logout');
+      
+      if (!isLogoutRequest) {
+        // Token is invalid, expired, or blacklisted - clear authentication locally
+        console.log('🔓 401 Unauthorized - Token may be blacklisted or expired');
+        this.authService.logoutLocal();
+      } else {
+        console.log('🔓 401 on logout request - proceeding with local cleanup');
+      }
     }
     
     return throwError(() => error);

@@ -1,53 +1,22 @@
-import { Component, Input, OnInit  } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
-export interface HeaderConfig {
-  showBackButton?: boolean;
-  showBurgerMenu?: boolean;
-  showNavigation?: boolean;
-  showUserProfile?: boolean;
-  showSeparator?: boolean;
-  title?: string;
-  logoSize?: 'small' | 'large';
-  logoPosition?: 'left' | 'center';
-}
+import { MatMenuModule } from '@angular/material/menu';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, RouterLink],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
-  @Input() config: HeaderConfig = {};
-  
-  // Default configuration
-  private defaultConfig: HeaderConfig = {
-    showBackButton: false,
-    showBurgerMenu: false,
-    showNavigation: true,
-    showUserProfile: true,
-    showSeparator: true,
-    logoSize: 'small',
-    logoPosition: 'left'
-  };
+export class HeaderComponent {
+  protected authService = inject(AuthService);
 
-  finalConfig: HeaderConfig = {};
-
-  constructor(private router: Router) {}
-
-  ngOnInit(): void {
-    // Merge default config with provided config
-    this.finalConfig = { ...this.defaultConfig, ...this.config };
-  }
-
-  onBackClick(): void {
-    // Navigate back or emit event to parent
-    window.history.back();
-    // Or use: this.router.navigateByUrl('/previous-route');
-  }
+  // Back button functionality removed - now handled by separate BackButtonComponent
 
   onBurgerMenuClick(): void {
     // Emit event to parent component to handle menu toggle
@@ -60,7 +29,15 @@ export class HeaderComponent implements OnInit {
     console.log('User profile clicked');
   }
 
-  onLogoClick(): void {
-    this.router.navigate(['/']);
+  onLogoutClick(): void {
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('✅ Logout successful:', response);
+      },
+      error: (error) => {
+        console.error('❌ Logout failed:', error);
+        // Even if error, user is still logged out locally
+      }
+    });
   }
 }

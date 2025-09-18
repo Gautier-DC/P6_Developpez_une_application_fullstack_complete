@@ -26,6 +26,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mdd_db
       SPRING_DATASOURCE_USERNAME: mdd_user
       SPRING_DATASOURCE_PASSWORD: mdd_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: myVeryLongSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm
       JWT_EXPIRATION: 86400000
       JWT_REFRESH_EXPIRATION: 604800000

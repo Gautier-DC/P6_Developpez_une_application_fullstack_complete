@@ -10,6 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/login-request';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MinimalistHeaderComponent } from 'src/app/components/minimalist-header/minimalist-header.component';
+import { BackButtonComponent } from "src/app/components/back-button/back-button.component";
 
 @Component({
   selector: 'app-login',
@@ -22,8 +25,10 @@ import { LoginRequest } from '../../models/login-request';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
-  ],
+    MatProgressSpinnerModule,
+    MinimalistHeaderComponent,
+    BackButtonComponent
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

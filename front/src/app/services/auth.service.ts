@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { tap, catchError, map } from 'rxjs/operators';
+import { tap, catchError, map, finalize } from 'rxjs/operators';
 
 import { 
   LoginRequest, 
@@ -28,11 +28,13 @@ export class AuthService {
   private readonly _currentUser = signal<UserResponse | null>(null);
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _token = signal<string | null>(null);
+  private readonly _isLoggingOut = signal<boolean>(false);
   
   // Computed signals (derived state)
   public readonly currentUser = this._currentUser.asReadonly();
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly token = this._token.asReadonly();
+  public readonly isLoggingOut = this._isLoggingOut.asReadonly();
   public readonly isLoggedIn = computed(() => this._isAuthenticated() && this._token() !== null);
   
   // Traditional BehaviorSubject for compatibility with guards and interceptors
@@ -72,7 +74,11 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap(response => this.setAuthData(response)),
+        tap(response => {
+          this.setAuthData(response);
+          // Redirect to articles after successful login
+          this.router.navigate(['/articles']);
+        }),
         catchError(error => this.handleAuthError('Login failed', error))
       );
   }
@@ -85,7 +91,11 @@ export class AuthService {
   register(userData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData)
       .pipe(
-        tap(response => this.setAuthData(response)),
+        tap(response => {
+          this.setAuthData(response);
+          // Redirect to articles after successful registration
+          this.router.navigate(['/articles']);
+        }),
         catchError(error => this.handleAuthError('Registration failed', error))
       );
   }
@@ -104,11 +114,63 @@ export class AuthService {
 
   /**
    * Logout user
-   * Clears authentication data and redirects to login
+   * Calls backend to blacklist token, then clears local auth data
    */
-  logout(): void {
+  logout(): Observable<string> {
+    // If no token, just clear local data
+    if (!this._token()) {
+      this.clearAuth();
+      this.router.navigate(['/auth/login']);
+      return new Observable(observer => {
+        observer.next('Already logged out');
+        observer.complete();
+      });
+    }
+
+    this._isLoggingOut.set(true);
+
+    console.log('🔍 Debug logout - Token exists:', !!this._token());
+    console.log('🔍 Debug logout - Token value:', this._token()?.substring(0, 20) + '...');
+
+    // Manually add Authorization header as fallback
+    const headers = {
+      'Authorization': `Bearer ${this._token()}`,
+      'Content-Type': 'application/json'
+    };
+
+    console.log('🔍 Debug - Manual headers:', headers);
+
+    return this.http.post(`${this.API_URL}/logout`, {}, { 
+      headers,
+      responseType: 'text' 
+    }).pipe(
+      tap(() => {
+        console.log('✅ Server logout successful');
+        this.clearAuth();
+        this.router.navigate(['/']); // Redirect to home page
+      }),
+      catchError(error => {
+        console.error('❌ Server logout failed:', error);
+        console.log('🔍 Debug - Error status:', error.status);
+        console.log('🔍 Debug - Error message:', error.message);
+        console.log('🔍 Debug - Full error:', error);
+        
+        // Even if server logout fails, clear local data
+        this.clearAuth();
+        this.router.navigate(['/']); // Redirect to home page
+        return throwError(() => new Error('Logout completed locally'));
+      }),
+      finalize(() => this._isLoggingOut.set(false))
+    );
+  }
+
+  /**
+   * Quick logout (client-side only)
+   * For cases where you want immediate logout without server call
+   */
+  logoutLocal(): void {
     this.clearAuth();
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']); // Redirect to home page
   }
 
   /**
@@ -171,6 +233,7 @@ export class AuthService {
     this._token.set(null);
     this._currentUser.set(null);
     this._isAuthenticated.set(false);
+    this._isLoggingOut.set(false);
     this._authStatus.next(false);
     
     localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);

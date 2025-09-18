@@ -23,11 +23,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
     canActivate: [guestGuard]
   },
-  // { 
-  //   path: 'articles', 
-  //   loadComponent: () => import('./pages/articles/articles.component').then(m => m.ArticlesComponent),
-  //   canActivate: [authGuard]
-  // },
+  { 
+    path: 'articles', 
+    loadComponent: () => import('./pages/articles/articles.component').then(m => m.ArticlesComponent),
+    canActivate: [authGuard]
+  },
   // { 
   //   path: 'themes', 
   //   loadComponent: () => import('./pages/themes/themes.component').then(m => m.ThemesComponent),

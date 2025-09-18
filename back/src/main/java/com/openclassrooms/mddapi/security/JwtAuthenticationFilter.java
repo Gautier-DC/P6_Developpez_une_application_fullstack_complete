@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
         this.tokenBlacklistService = tokenBlacklistService;
+        log.info("✅ JwtAuthenticationFilter initialized with blacklist service");
     }
 
     @Override
@@ -48,12 +49,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         
+        log.info("🔍 JwtAuthenticationFilter EXECUTING for: {}", request.getRequestURI());
+        
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
         
+        log.debug("🔍 JWT Filter - Request URI: {}", request.getRequestURI());
+        log.debug("🔍 JWT Filter - Auth header: {}", authHeader != null ? "Bearer ***" : "null");
+        
         // Check if Authorization header exists and starts with "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.debug("🔍 JWT Filter - No valid auth header, skipping");
             filterChain.doFilter(request, response);
             return;
         }
@@ -63,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         try {
             // Check if token is blacklisted
-            if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
+            if (tokenBlacklistService != null && tokenBlacklistService.isTokenBlacklisted(jwt)) {
                 log.warn("Attempted to use blacklisted token");
                 filterChain.doFilter(request, response);
                 return;
