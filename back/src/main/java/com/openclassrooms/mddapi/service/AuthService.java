@@ -44,8 +44,15 @@ public interface AuthService {
     
     /**
      * Logout user by blacklisting their JWT token
-     * 
+     *
      * @param token JWT token to invalidate
      */
     void logout(String token);
+
+    /**
+     * Logout user by extracting and blacklisting JWT token from request
+     *
+     * @param request HTTP request containing Authorization header
+     */
+    void logout(jakarta.servlet.http.HttpServletRequest request);
 }
