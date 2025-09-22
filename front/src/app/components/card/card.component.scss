@@ -1,0 +1,53 @@
+.app-card {
+  margin-bottom: 16px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  background-color: #F5F5F5;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-title {
+  margin: 0 0 12px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+  color: #000;
+}
+
+.card-date {
+  font-style: italic;
+}
+
+.card-author {
+  font-weight: 500;
+}
+
+.card-description {
+  margin: 12px 0 16px 0;
+  line-height: 1.5;
+  color: #555;
+
+  strong {
+    color: #333;
+  }
+}
+
+.card-button {
+  margin-top: .5rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

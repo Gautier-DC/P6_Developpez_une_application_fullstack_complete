@@ -22,7 +22,8 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.showHeader = !this.hiddenHeaderRoutes.includes(event.url);
+      const currentPath = event.url.split('?')[0]; // Remove query parameters
+      this.showHeader = !this.hiddenHeaderRoutes.includes(currentPath);
     });
   }
 }

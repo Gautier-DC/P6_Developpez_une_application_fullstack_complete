@@ -67,29 +67,18 @@
 
     <!-- Subscriptions Section -->
     <div class="subscriptions-section">
-      <div class="section-divider"></div>
-
+      <mat-divider></mat-divider>
       <h2 class="subscriptions-title">Abonnements</h2>
-
       <div class="subscriptions-grid">
         @for (subscription of subscriptions; track subscription.title; let i =
         $index) {
-        <mat-card class="subscription-card">
-          <mat-card-content>
-            <h3 class="subscription-title">{{ subscription.title }}</h3>
-            <p class="subscription-description">
-              <strong>Description:</strong> {{ subscription.description }}
-            </p>
-            <button
-              mat-raised-button
-              color="primary"
-              class="unsubscribe-button"
-              (click)="onUnsubscribe(i)"
-            >
-              Se désabonner
-            </button>
-          </mat-card-content>
-        </mat-card>
+        <app-card
+          [title]="subscription.title"
+          [description]="subscription.description"
+          buttonText="Se désabonner"
+          buttonColor="primary"
+          (buttonClick)="onUnsubscribe(i)"
+        ></app-card>
         }
       </div>
     </div>

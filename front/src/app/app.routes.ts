@@ -23,9 +23,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
     canActivate: [guestGuard]
   },
-  { 
-    path: 'articles', 
+  {
+    path: 'articles',
     loadComponent: () => import('./pages/articles/articles.component').then(m => m.ArticlesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'create-article',
+    loadComponent: () => import('./pages/create-article/create-article.component').then(m => m.CreateArticleComponent),
     canActivate: [authGuard]
   },
   // { 

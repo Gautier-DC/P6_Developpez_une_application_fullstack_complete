@@ -1,14 +1,22 @@
 package com.openclassrooms.mddapi.service.impl;
 
 import com.openclassrooms.mddapi.model.User;
+import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.service.AuthenticationHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class AuthenticationHelperServiceImpl implements AuthenticationHelperService {
+
+    private final UserRepository userRepository;
+
+    public AuthenticationHelperServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User getCurrentUser(Authentication authentication) {
@@ -17,14 +25,26 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
             throw new IllegalArgumentException("Authentication is required");
         }
 
-        if (!(authentication.getPrincipal() instanceof User)) {
-            log.error("Principal is not an instance of User: {}", authentication.getPrincipal().getClass());
-            throw new IllegalStateException("Invalid authentication principal type");
+        // Handle UserDetails from JWT authentication
+        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
+            String email = userDetails.getUsername();
+            log.debug("Extracting user by email: {} from UserDetails", email);
+
+            return userRepository.findByEmail(email)
+                    .orElseThrow(() -> {
+                        log.error("User not found with email: {}", email);
+                        return new IllegalStateException("User not found: " + email);
+                    });
         }
 
-        User user = (User) authentication.getPrincipal();
-        log.debug("Extracted user: {} from authentication", user.getUsername());
-        return user;
+        // Fallback for direct User objects (if used elsewhere)
+        if (authentication.getPrincipal() instanceof User user) {
+            log.debug("Extracted user: {} from authentication", user.getEmail());
+            return user;
+        }
+
+        log.error("Principal is not an instance of User or UserDetails: {}", authentication.getPrincipal().getClass());
+        throw new IllegalStateException("Invalid authentication principal type");
     }
 
     @Override

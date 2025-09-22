@@ -9,11 +9,11 @@ export const guestGuard: CanActivateFn = () => {
   const isAuth = authService.isLoggedIn();
   
   if (isAuth) {
-    // Si déjà connecté, rediriger vers la page d'accueil authentifiée
-    router.navigate(['/articles']); // ou toute autre page par défaut
+    // if already authenticated, redirect to articles
+    router.navigate(['/articles']); 
     return false;
   } else {
-    // Si pas connecté, autoriser l'accès aux pages guest (login/register)
+    // If not connected, allow access to guest pages (login/register)
     return true;
   }
 };

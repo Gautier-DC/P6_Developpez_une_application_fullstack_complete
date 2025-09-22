@@ -1,0 +1,99 @@
+
+
+
+.back-button {
+  color: #666;
+  &:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.article-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%
+}
+
+.form-field {
+  width: 100%;
+}
+
+.content-field {
+  textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.create-button {
+  min-width: 150px;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.7;
+  }
+}
+
+.button-spinner {
+  ::ng-deep circle {
+    stroke: white;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .create-article-container {
+    padding: 1rem;
+  }
+
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+
+  .content-field textarea {
+    min-height: 150px;
+  }
+}
+
+// Snackbar styles
+:host ::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+:host ::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
