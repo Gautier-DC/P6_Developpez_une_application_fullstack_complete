@@ -86,14 +86,21 @@ section {
   justify-content: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 3.5rem;
+  padding: 0.8rem 1.2rem;
 
   > * {
     width: 100%;
   }
 
-  @media (max-width: 768px) {
-    padding: 3rem 0.5rem;
+  @media (min-width: 768px) {
+    padding: 2rem 1.5rem;
+  }
+}
+
+.container-detailed {
+  padding: 1rem 0.5rem;
+  @media (min-width: 768px) {
+    padding: 3rem 1rem;
   }
 }
 

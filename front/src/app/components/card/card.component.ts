@@ -16,6 +16,7 @@ export class CardComponent {
   @Input() description!: string;
   @Input() buttonText?: string;
   @Input() buttonColor: 'primary' | 'accent' | 'warn' = 'primary';
+  @Input() buttonDisabled?: boolean = false;
 
   @Output() buttonClick = new EventEmitter<void>();
   @Output() cardClick = new EventEmitter<void>();

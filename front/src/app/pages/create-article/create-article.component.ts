@@ -135,7 +135,7 @@ export class CreateArticleComponent implements OnInit {
       // Créer un nouveau thème puis l'article
       this.themeService.createTheme({
         name: form.themeName,
-        description: `Thème créé automatiquement : ${form.themeName}`
+        description: `tout ce qu'il faut savoir sur ${form.themeName}`
       }).subscribe({
         next: (newTheme) => {
           this.themes.update(themes => [...themes, newTheme]);

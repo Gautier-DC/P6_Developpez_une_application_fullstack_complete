@@ -36,4 +36,22 @@ export class ThemeService {
       headers: this.getHeaders()
     });
   }
+
+  subscribeToTheme(themeId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/themes/${themeId}/subscribe`, {}, {
+      headers: this.getHeaders()
+    });
+  }
+
+  unsubscribeFromTheme(themeId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/themes/${themeId}/subscribe`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getUserSubscriptions(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/themes/subscriptions`, {
+      headers: this.getHeaders()
+    });
+  }
 }

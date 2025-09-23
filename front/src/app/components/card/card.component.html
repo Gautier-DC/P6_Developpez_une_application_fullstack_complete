@@ -21,6 +21,7 @@
         mat-raised-button
         [color]="buttonColor"
         class="card-button"
+        [disabled]="buttonDisabled"
         (click)="onButtonClick()"
       >
         {{ buttonText }}

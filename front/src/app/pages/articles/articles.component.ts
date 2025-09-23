@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { ArticleService } from '../../services/article.service';
 import { Article } from '../../models/article.models';
 import { CardComponent } from '../../components/card/card.component';
+import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.component';
 
 @Component({
   selector: 'app-articles',
@@ -16,7 +17,8 @@ import { CardComponent } from '../../components/card/card.component';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    CardComponent
+    CardComponent,
+    PageLayoutComponent
   ],
   templateUrl: './articles.component.html',
   styleUrls: ['./articles.component.scss']

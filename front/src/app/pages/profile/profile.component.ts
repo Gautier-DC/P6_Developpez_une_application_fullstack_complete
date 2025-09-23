@@ -4,41 +4,53 @@ import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import {MatDividerModule} from '@angular/material/divider';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { UpdateProfileRequest } from '../../models/auth.models';
 import { CardComponent } from '../../components/card/card.component';
+import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.component';
+import { ThemeService } from '../../services/theme.service';
+import { Theme } from '../../models/article.models';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatProgressSpinnerModule, MatDividerModule, CardComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    CardComponent,
+    PageLayoutComponent
+  ],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss'
+  styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private snackBar = inject(MatSnackBar);
-  
+
   userProfile = {
     username: '',
     email: '',
-    password: ''
+    password: '',
   };
 
   isLoading = false;
-
-  subscriptions = [
-    { title: 'Titre du thème', description: 'Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard...' },
-    { title: 'Titre du thème', description: 'Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard...' }
-  ];
+  isLoadingSubscriptions = false;
+  subscribedThemes: Theme[] = [];
 
   ngOnInit(): void {
-    // Load user profile data
     this.loadUserProfile();
+    this.loadUserSubscriptions();
   }
 
   loadUserProfile(): void {
@@ -48,7 +60,7 @@ export class ProfileComponent implements OnInit {
       this.userProfile.username = currentUser.username || '';
       this.userProfile.email = currentUser.email || '';
     }
-    
+
     // Also try to fetch fresh user data from server
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
@@ -58,7 +70,7 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         console.log('Could not fetch fresh user data:', error);
         // Keep using cached data
-      }
+      },
     });
   }
 
@@ -71,15 +83,15 @@ export class ProfileComponent implements OnInit {
 
     // Prepare update data - only send fields that have values
     const updateData: UpdateProfileRequest = {};
-    
+
     if (this.userProfile.username.trim()) {
       updateData.username = this.userProfile.username.trim();
     }
-    
+
     if (this.userProfile.email.trim()) {
       updateData.email = this.userProfile.email.trim();
     }
-    
+
     if (this.userProfile.password.trim()) {
       updateData.password = this.userProfile.password.trim();
     }
@@ -88,48 +100,52 @@ export class ProfileComponent implements OnInit {
     this.authService.updateProfile(updateData).subscribe({
       next: (updatedUser) => {
         console.log('✅ Profile updated successfully:', updatedUser);
-        
+
         // Update local form with fresh data
         this.userProfile.username = updatedUser.username;
         this.userProfile.email = updatedUser.email;
         this.userProfile.password = ''; // Clear password field for security
-        
+
         // Show success message
         this.snackBar.open('Profil mis à jour avec succès !', 'Fermer', {
           duration: 3000,
-          panelClass: ['success-snackbar']
+          panelClass: ['success-snackbar'],
         });
-        
+
         this.isLoading = false;
       },
       error: (error) => {
         console.error('❌ Profile update failed:', error);
-        
+
         // Show error message
-        this.snackBar.open(error.message || 'Erreur lors de la mise à jour du profil', 'Fermer', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
-        
+        this.snackBar.open(
+          error.message || 'Erreur lors de la mise à jour du profil',
+          'Fermer',
+          {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+          }
+        );
+
         this.isLoading = false;
-      }
+      },
     });
   }
 
   private isValidForm(): boolean {
     // Basic validation
     if (!this.userProfile.username.trim()) {
-      this.snackBar.open('Le nom d\'utilisateur est requis', 'Fermer', {
+      this.snackBar.open("Le nom d'utilisateur est requis", 'Fermer', {
         duration: 3000,
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
       return false;
     }
 
     if (!this.userProfile.email.trim()) {
-      this.snackBar.open('L\'email est requis', 'Fermer', {
+      this.snackBar.open("L'email est requis", 'Fermer', {
         duration: 3000,
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
       return false;
     }
@@ -137,9 +153,9 @@ export class ProfileComponent implements OnInit {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.userProfile.email)) {
-      this.snackBar.open('Format d\'email invalide', 'Fermer', {
+      this.snackBar.open("Format d'email invalide", 'Fermer', {
         duration: 3000,
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
       return false;
     }
@@ -147,8 +163,54 @@ export class ProfileComponent implements OnInit {
     return true;
   }
 
-  onUnsubscribe(index: number): void {
-    console.log('Unsubscribing from:', this.subscriptions[index]);
-    // TODO: Implement unsubscribe logic
+  loadUserSubscriptions(): void {
+    this.isLoadingSubscriptions = true;
+
+    this.themeService.getUserSubscriptions().subscribe({
+      next: (subscriptionIds) => {
+        if (subscriptionIds.length === 0) {
+          this.subscribedThemes = [];
+          this.isLoadingSubscriptions = false;
+          return;
+        }
+
+        // Get all themes and filter by subscribed IDs
+        this.themeService.getAllThemes().subscribe({
+          next: (allThemes) => {
+            this.subscribedThemes = allThemes.filter(theme =>
+              subscriptionIds.includes(theme.id)
+            );
+            this.isLoadingSubscriptions = false;
+          },
+          error: (error) => {
+            console.error('Error loading themes:', error);
+            this.isLoadingSubscriptions = false;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error loading subscriptions:', error);
+        this.isLoadingSubscriptions = false;
+      }
+    });
+  }
+
+  onUnsubscribe(theme: Theme): void {
+    this.themeService.unsubscribeFromTheme(theme.id).subscribe({
+      next: () => {
+        this.subscribedThemes = this.subscribedThemes.filter(t => t.id !== theme.id);
+        this.snackBar.open(`Désabonné du thème "${theme.name}"`, 'Fermer', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+        });
+      },
+      error: (error) => {
+        console.error('Error unsubscribing:', error);
+        this.snackBar.open('Erreur lors du désabonnement', 'Fermer', {
+          duration: 3000,
+          panelClass: ['error-snackbar'],
+        });
+      }
+    });
   }
 }

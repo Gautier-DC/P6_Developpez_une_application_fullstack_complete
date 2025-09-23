@@ -39,11 +39,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/create-article/create-article.component').then(m => m.CreateArticleComponent),
     canActivate: [authGuard]
   },
-  // { 
-  //   path: 'themes', 
-  //   loadComponent: () => import('./pages/themes/themes.component').then(m => m.ThemesComponent),
-  //   canActivate: [authGuard]
-  // },
+  {
+    path: 'themes',
+    loadComponent: () => import('./pages/themes/themes.component').then(m => m.ThemesComponent),
+    canActivate: [authGuard]
+  },
   { 
     path: 'profile', 
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),

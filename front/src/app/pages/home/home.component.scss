@@ -2,6 +2,7 @@
 .button-container {
   gap: var(--gap-md);
   margin-top: 2rem;
+  justify-content: center;
   @media screen and (min-width:600px) {
     flex-direction: row;
   }
@@ -14,10 +15,11 @@ button {
   }
 }
 
-.container img {
+.hero-logo {
   display: block;
   margin: 0 auto;
-  max-width: 100%;
+  width: 100%;
+  max-width: 800px;
   height: auto;
   margin-bottom: 2rem;
 }

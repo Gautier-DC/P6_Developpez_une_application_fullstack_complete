@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { ArticleService } from '../../services/article.service';
 import { Article, Comment, CreateCommentRequest } from '../../models/article.models';
 import { BackButtonComponent } from '../../components/back-button/back-button.component';
+import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.component';
 
 @Component({
   selector: 'app-article-detail',
@@ -24,7 +25,8 @@ import { BackButtonComponent } from '../../components/back-button/back-button.co
     MatFormFieldModule,
     MatProgressSpinnerModule,
     FormsModule,
-    BackButtonComponent
+    BackButtonComponent,
+    PageLayoutComponent
   ],
   templateUrl: './article-detail.component.html',
   styleUrls: ['./article-detail.component.scss']
