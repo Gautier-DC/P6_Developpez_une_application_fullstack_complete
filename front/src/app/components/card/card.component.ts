@@ -18,8 +18,13 @@ export class CardComponent {
   @Input() buttonColor: 'primary' | 'accent' | 'warn' = 'primary';
 
   @Output() buttonClick = new EventEmitter<void>();
+  @Output() cardClick = new EventEmitter<void>();
 
   onButtonClick(): void {
     this.buttonClick.emit();
+  }
+
+  onCardClick(): void {
+    this.cardClick.emit();
   }
 }

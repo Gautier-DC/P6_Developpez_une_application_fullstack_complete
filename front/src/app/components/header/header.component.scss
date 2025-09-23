@@ -77,6 +77,17 @@
   // User Profile
   &__user-profile {
     color: #d9d9d9;
+    padding: 0;
+    transition: color ease-in 0.2s;
+    &:hover {
+      color: var(--color-primary-light);
+    }
+
+    mat-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+    }
   }
 
   // Burger Menu (Mobile only)

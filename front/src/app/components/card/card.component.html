@@ -1,8 +1,6 @@
-<mat-card class="app-card">
+<mat-card class="app-card" (click)="onCardClick()">
   <mat-card-content>
     <h3 class="card-title">{{ title }}</h3>
-
-    <!-- Ligne date/auteur - affichée seulement si au moins l'un d'eux existe -->
     @if (date || author) {
       <div class="card-meta">
         @if (date) {
@@ -13,9 +11,8 @@
         }
       </div>
     }
-
     <p class="card-description">
-      <strong>Description:</strong> {{ description }}
+      {{ description }}
     </p>
 
     <!-- Bouton affiché seulement si buttonText existe -->

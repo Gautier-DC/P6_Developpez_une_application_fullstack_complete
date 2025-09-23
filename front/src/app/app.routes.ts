@@ -6,9 +6,10 @@ import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   // Routes publiques (sans authentification)
-  { 
-    path: '', 
-    component: HomeComponent 
+  {
+    path: '',
+    component: HomeComponent,
+    canActivate: [guestGuard]
   },
   
   // Routes guest seulement (redirect si déjà connecté)
@@ -26,6 +27,11 @@ export const routes: Routes = [
   {
     path: 'articles',
     loadComponent: () => import('./pages/articles/articles.component').then(m => m.ArticlesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'articles/:id',
+    loadComponent: () => import('./pages/article-detail/article-detail.component').then(m => m.ArticleDetailComponent),
     canActivate: [authGuard]
   },
   {
