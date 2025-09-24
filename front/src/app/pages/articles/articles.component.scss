@@ -1,15 +1,89 @@
 .articles-container {
-  padding: 2rem;
+  padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 1rem;
+.articles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
-p {
-  font-size: 1.1rem;
+.create-button {
+  min-width: 150px;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.sort-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #666;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// Styles spécifiques pour les cartes dans la grille d'articles
+::ng-deep .articles-grid app-card .app-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  button {
+    min-width: 200px;
+  }
 }

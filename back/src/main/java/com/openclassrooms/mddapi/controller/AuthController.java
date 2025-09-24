@@ -14,6 +14,7 @@ import com.openclassrooms.mddapi.dto.request.UpdateProfileRequest;
 import com.openclassrooms.mddapi.dto.response.AuthResponse;
 import com.openclassrooms.mddapi.dto.response.UserResponse;
 import com.openclassrooms.mddapi.service.AuthService;
+import com.openclassrooms.mddapi.service.AuthenticationHelperService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,9 +36,11 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final AuthenticationHelperService authenticationHelperService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, AuthenticationHelperService authenticationHelperService) {
         this.authService = authService;
+        this.authenticationHelperService = authenticationHelperService;
     }
 
     /**
@@ -101,9 +104,9 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
-        String email = authentication.getName();
+        String email = authenticationHelperService.getCurrentUserEmail(authentication);
         log.debug("Fetching profile for user: {}", email);
-        
+
         UserResponse userResponse = authService.getCurrentUser(email);
         return ResponseEntity.ok(userResponse);
     }
@@ -126,7 +129,7 @@ public class AuthController {
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UpdateProfileRequest updateRequest, 
                                                      Authentication authentication) {
         try {
-            String email = authentication.getName();
+            String email = authenticationHelperService.getCurrentUserEmail(authentication);
             log.info("Profile update request for user: {}", email);
             log.debug("Request data - username: {}, email: {}, password provided: {}", 
                      updateRequest.getUsername(), 
@@ -154,21 +157,14 @@ public class AuthController {
     @Operation(summary = "User logout", description = "Invalidate JWT token by adding it to blacklist")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Logout successful"),
-            @ApiResponse(responseCode = "401", description = "No valid token provided"),
-            @ApiResponse(responseCode = "400", description = "Invalid request")
+            @ApiResponse(responseCode = "400", description = "Invalid authorization header"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("Logout attempt without valid Authorization header");
-            return ResponseEntity.badRequest().body("No valid token provided");
-        }
-        
-        String token = authHeader.substring(7); // Remove "Bearer " prefix
-        authService.logout(token);
-        
-        log.info("User logout successful");
+        log.info("Logout request received");
+
+        authService.logout(request);
+
         return ResponseEntity.ok("Logout successful");
     }
 

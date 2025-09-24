@@ -17,6 +17,7 @@ import com.openclassrooms.mddapi.dto.request.RegisterRequest;
 import com.openclassrooms.mddapi.dto.request.UpdateProfileRequest;
 import com.openclassrooms.mddapi.dto.response.AuthResponse;
 import com.openclassrooms.mddapi.dto.response.UserResponse;
+import com.openclassrooms.mddapi.exception.InvalidAuthorizationHeaderException;
 import com.openclassrooms.mddapi.exception.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.exception.UserNotFoundException;
 import com.openclassrooms.mddapi.model.User;
@@ -219,13 +220,30 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String token) {
         log.info("Processing logout request");
-        
+
         // Extract expiration date from token for cleanup purposes
         Date expiration = jwtService.extractExpiration(token);
-        
+
         // Add token to blacklist
         tokenBlacklistService.blacklistToken(token, expiration);
-        
+
         log.info("User logged out successfully. Token blacklisted.");
+    }
+
+    @Override
+    public void logout(jakarta.servlet.http.HttpServletRequest request) {
+        log.info("Processing logout request from HTTP request");
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Logout attempt without valid Authorization header");
+            throw new InvalidAuthorizationHeaderException("No valid authorization header provided");
+        }
+
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        logout(token);
+
+        log.info("User logout successful");
     }
 }

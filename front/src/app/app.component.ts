@@ -1,16 +1,25 @@
-import { Component } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, NavigationEnd, RouterLink } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { filter } from 'rxjs/operators';
+import { MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from './services/auth.service';
+import { MinimalistHeaderComponent } from './components/minimalist-header/minimalist-header.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, HeaderComponent],
+    imports: [CommonModule, RouterOutlet, RouterLink, HeaderComponent, MinimalistHeaderComponent, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule, MatDividerModule],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  protected authService = inject(AuthService);
   title = 'front';
   showHeader = false;
 
@@ -22,7 +31,24 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.showHeader = !this.hiddenHeaderRoutes.includes(event.url);
+      const currentPath = event.url.split('?')[0]; // Remove query parameters
+      this.showHeader = !this.hiddenHeaderRoutes.includes(currentPath);
     });
+  }
+
+  onLogoutClick(): void {
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('✅ Logout successful:', response);
+      },
+      error: (error) => {
+        console.error('❌ Logout failed:', error);
+        // Even if error, user is still logged out locally
+      }
+    });
+  }
+
+  isHomePage(): boolean {
+    return this.router.url === '/';
   }
 }

@@ -149,19 +149,115 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
     
+    @ExceptionHandler(ArticleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleArticleNotFound(
+            ArticleNotFoundException ex, WebRequest request) {
+
+        log.warn("Article not found: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "ARTICLE_NOT_FOUND",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommentNotFound(
+            CommentNotFoundException ex, WebRequest request) {
+
+        log.warn("Comment not found: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "COMMENT_NOT_FOUND",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ThemeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleThemeNotFound(
+            ThemeNotFoundException ex, WebRequest request) {
+
+        log.warn("Theme not found: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "THEME_NOT_FOUND",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ThemeAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleThemeAlreadyExists(
+            ThemeAlreadyExistsException ex, WebRequest request) {
+
+        log.warn("Theme already exists: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "THEME_ALREADY_EXISTS",
+            ex.getMessage(),
+            HttpStatus.CONFLICT.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(UnauthorizedOperationException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedOperation(
+            UnauthorizedOperationException ex, WebRequest request) {
+
+        log.warn("Unauthorized operation: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "UNAUTHORIZED_OPERATION",
+            ex.getMessage(),
+            HttpStatus.FORBIDDEN.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidAuthorizationHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAuthorizationHeader(
+            InvalidAuthorizationHeaderException ex, WebRequest request) {
+
+        log.warn("Invalid authorization header: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "INVALID_AUTHORIZATION_HEADER",
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
-        
+
         log.error("Unexpected error: {}", ex.getMessage(), ex);
-        
+
         ErrorResponse errorResponse = new ErrorResponse(
             "INTERNAL_SERVER_ERROR",
             "An unexpected error occurred",
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             request.getDescription(false).replace("uri=", "")
         );
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

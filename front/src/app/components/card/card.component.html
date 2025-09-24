@@ -1,0 +1,31 @@
+<mat-card class="app-card" (click)="onCardClick()">
+  <mat-card-content>
+    <h3 class="card-title">{{ title }}</h3>
+    @if (date || author) {
+      <div class="card-meta">
+        @if (date) {
+          <span class="card-date">{{ date }}</span>
+        }
+        @if (author) {
+          <span class="card-author">{{ author }}</span>
+        }
+      </div>
+    }
+    <p class="card-description">
+      {{ description }}
+    </p>
+
+    <!-- Bouton affiché seulement si buttonText existe -->
+    @if (buttonText) {
+      <button
+        mat-raised-button
+        [color]="buttonColor"
+        class="card-button"
+        [disabled]="buttonDisabled"
+        (click)="onButtonClick()"
+      >
+        {{ buttonText }}
+      </button>
+    }
+  </mat-card-content>
+</mat-card>
