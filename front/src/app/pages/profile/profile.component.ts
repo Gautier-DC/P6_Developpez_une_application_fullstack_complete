@@ -11,7 +11,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { UpdateProfileRequest } from '../../models/auth.models';
 import { CardComponent } from '../../components/card/card.component';
-import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.component';
 import { ThemeService } from '../../services/theme.service';
 import { Theme } from '../../models/article.models';
 
@@ -27,8 +26,7 @@ import { Theme } from '../../models/article.models';
     MatFormFieldModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    CardComponent,
-    PageLayoutComponent
+    CardComponent
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',

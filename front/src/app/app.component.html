@@ -1,4 +1,65 @@
-@if (showHeader) {
-  <app-header></app-header>
-}
-<router-outlet></router-outlet>
+<mat-sidenav-container class="sidenav-container">
+  <!-- Mobile Sidenav -->
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport="true"
+    [attr.role]="'dialog'"
+    mode="over"
+    position="end"
+  >
+    <mat-nav-list>
+      <a
+        mat-button
+        class="mobile-menu-item mobile-menu-item--logout"
+        color="warn"
+        (click)="onLogoutClick(); drawer.close()"
+        [disabled]="authService.isLoggingOut()"
+      >
+        <mat-icon>logout</mat-icon>
+        <span>
+          @if (authService.isLoggingOut()) { Déconnexion... } @else { Se
+          déconnecter }
+        </span>
+      </a>
+      <div class="list-item__container">
+        <a mat-list-item routerLink="/articles" (click)="drawer.close()">
+          <span>Articles</span>
+        </a>
+        <a mat-list-item routerLink="/themes" (click)="drawer.close()">
+          <span>Thèmes</span>
+        </a>
+      </div>
+      <div class="mobile-avatar__container">
+        <button
+          mat-icon-button
+          class="avatar-button"
+          aria-label="User profile"
+          routerLink="/profile"
+          (click)="drawer.close()"
+        >
+          <mat-icon>account_circle</mat-icon>
+        </button>
+      </div>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content>
+    <!-- Header avec bouton menu -->
+    @if (showHeader) {
+    <app-header [drawer]="drawer"></app-header>
+    } @else if (!showHeader && !isHomePage()) {
+    <app-minimalist-header></app-minimalist-header>
+    }
+
+    <!-- Router Outlet pour les pages -->
+    <main>
+      <section>
+        <div class="container">
+          <router-outlet></router-outlet>
+        </div>
+      </section>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

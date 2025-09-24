@@ -4,7 +4,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ThemeService } from '../../services/theme.service';
 import { Theme } from '../../models/article.models';
 import { CardComponent } from '../../components/card/card.component';
-import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.component';
 
 @Component({
   selector: 'app-themes',
@@ -12,8 +11,7 @@ import { PageLayoutComponent } from 'src/app/components/page-layout/page-layout.
   imports: [
     CommonModule,
     MatProgressSpinnerModule,
-    CardComponent,
-    PageLayoutComponent
+    CardComponent
   ],
   templateUrl: './themes.component.html',
   styleUrls: ['./themes.component.scss']

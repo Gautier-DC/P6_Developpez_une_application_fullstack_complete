@@ -1,107 +1,100 @@
-<app-page-layout>
-      <div class='container-detailed'>
-      @if (isLoading) {
-      <div class="loading-container">
-        <mat-spinner></mat-spinner>
+<div class="container-detailed">
+  @if (isLoading) {
+  <div class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+  }
+
+  <!-- Article content -->
+  @if (!isLoading && article) {
+  <article class="article-content">
+    <!-- Article header -->
+    <div class="article-header">
+      <app-back-button [customRoute]="'/articles'" (backClick)="onBackClick()">
+      </app-back-button>
+      <h1 class="article-title">{{ article.title }}</h1>
+      <div class="article-meta">
+        <span class="article-date">{{ formatDate(article.createdAt) }}</span>
+        <span class="article-author">{{ article.authorUsername }}</span>
+        <span class="article-theme">{{ article.theme.name }}</span>
+      </div>
+    </div>
+
+    <!-- Article body -->
+    <div class="article-body">
+      <p class="article-text">{{ article.content }}</p>
+    </div>
+
+    <!-- Divider -->
+    <mat-divider></mat-divider>
+
+    <!-- Comments section -->
+    <div class="comments-section">
+      <h2 class="comments-title">Commentaires</h2>
+
+      <!-- Comments loading -->
+      @if (isCommentsLoading) {
+      <div class="comments-loading">
+        <mat-spinner diameter="30"></mat-spinner>
       </div>
       }
 
-      <!-- Article content -->
-      @if (!isLoading && article) {
-      <article class="article-content">
-        <!-- Article header -->
-        <div class="article-header">
-          <app-back-button
-            [customRoute]="'/articles'"
-            (backClick)="onBackClick()"
-          >
-          </app-back-button>
-          <h1 class="article-title">{{ article.title }}</h1>
-          <div class="article-meta">
-            <span class="article-date">{{
-              formatDate(article.createdAt)
-            }}</span>
-            <span class="article-author">{{ article.authorUsername }}</span>
-            <span class="article-theme">{{ article.theme.name }}</span>
+      <!-- Comments list -->
+      @if (!isCommentsLoading) {
+      <div class="comments-list">
+        @for (comment of comments; track comment.id) {
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.username }}</span>
+          </div>
+          <div class="comment-content">
+            {{ comment.content }}
           </div>
         </div>
-
-        <!-- Article body -->
-        <div class="article-body">
-          <p class="article-text">{{ article.content }}</p>
-        </div>
-
-        <!-- Divider -->
-        <mat-divider></mat-divider>
-
-        <!-- Comments section -->
-        <div class="comments-section">
-          <h2 class="comments-title">Commentaires</h2>
-
-          <!-- Comments loading -->
-          @if (isCommentsLoading) {
-          <div class="comments-loading">
-            <mat-spinner diameter="30"></mat-spinner>
-          </div>
-          }
-
-          <!-- Comments list -->
-          @if (!isCommentsLoading) {
-          <div class="comments-list">
-            @for (comment of comments; track comment.id) {
-            <div class="comment-item">
-              <div class="comment-header">
-                <span class="comment-author">{{ comment.username }}</span>
-              </div>
-              <div class="comment-content">
-                {{ comment.content }}
-              </div>
-            </div>
-            } @if (comments.length === 0) {
-            <p class="no-comments">Aucun commentaire pour le moment.</p>
-            }
-          </div>
-          }
-
-          <!-- Comment form -->
-          <div class="comment-form">
-            <mat-form-field class="comment-input" appearance="outline">
-              <mat-label>Écrivez ici votre commentaire</mat-label>
-              <textarea
-                matInput
-                [(ngModel)]="newComment"
-                rows="4"
-                placeholder="Écrivez ici votre commentaire"
-                [disabled]="isSubmittingComment"
-              ></textarea>
-            </mat-form-field>
-
-            <button
-              mat-icon-button
-              color="primary"
-              class="submit-button"
-              (click)="onSubmitComment()"
-              [disabled]="!newComment.trim() || isSubmittingComment"
-            >
-              @if (isSubmittingComment) {
-              <mat-spinner diameter="20"></mat-spinner>
-              } @else {
-              <mat-icon>send</mat-icon>
-              }
-            </button>
-          </div>
-        </div>
-      </article>
+        } @if (comments.length === 0) {
+        <p class="no-comments">Aucun commentaire pour le moment.</p>
+        }
+      </div>
       }
 
-      <!-- Error state -->
-      @if (!isLoading && !article) {
-      <div class="error-state">
-        <p>Article non trouvé</p>
-        <button mat-raised-button color="primary" (click)="onBackClick()">
-          Retour aux articles
+      <!-- Comment form -->
+      <div class="comment-form">
+        <mat-form-field class="comment-input" appearance="outline">
+          <mat-label>Écrivez ici votre commentaire</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="newComment"
+            rows="4"
+            placeholder="Écrivez ici votre commentaire"
+            [disabled]="isSubmittingComment"
+          ></textarea>
+        </mat-form-field>
+
+        <button
+          mat-icon-button
+          color="primary"
+          class="submit-button"
+          (click)="onSubmitComment()"
+          [disabled]="!newComment.trim() || isSubmittingComment"
+        >
+          @if (isSubmittingComment) {
+          <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+          <mat-icon>send</mat-icon>
+          }
         </button>
       </div>
-      }
-      </div>
-</app-page-layout>
+    </div>
+  </article>
+  }
+
+  <!-- Error state -->
+  @if (!isLoading && !article) {
+  <div class="error-state">
+    <p>Article non trouvé</p>
+    <button mat-raised-button color="primary" (click)="onBackClick()">
+      Retour aux articles
+    </button>
+  </div>
+  }
+</div>

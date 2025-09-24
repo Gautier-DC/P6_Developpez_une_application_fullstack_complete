@@ -1,21 +1,19 @@
-<app-page-layout>
-  @if (isLoading) {
-  <div class="loading-container">
-    <mat-spinner></mat-spinner>
-  </div>
-  } @if (!isLoading) {
-  <div class="themes-grid">
-    @for (theme of themes; track theme.id) {
-    <app-card
-      [title]="theme.name"
-      [description]="theme.description"
-      [buttonText]="getButtonText(theme)"
-      [buttonColor]="getButtonColor(theme)"
-      [buttonDisabled]="isProcessing(theme.id) || isSubscribed(theme.id)"
-      (buttonClick)="onSubscribeToggle(theme)"
-    >
-    </app-card>
-    }
-  </div>
+@if (isLoading) {
+<div class="loading-container">
+  <mat-spinner></mat-spinner>
+</div>
+} @if (!isLoading) {
+<div class="themes-grid">
+  @for (theme of themes; track theme.id) {
+  <app-card
+    [title]="theme.name"
+    [description]="theme.description"
+    [buttonText]="getButtonText(theme)"
+    [buttonColor]="getButtonColor(theme)"
+    [buttonDisabled]="isProcessing(theme.id) || isSubscribed(theme.id)"
+    (buttonClick)="onSubscribeToggle(theme)"
+  >
+  </app-card>
   }
-</app-page-layout>
+</div>
+}
