@@ -27,11 +27,6 @@ export class HeaderComponent {
     }
   }
 
-  onUserProfileClick(): void {
-    // Handle user profile click
-    console.log('User profile clicked');
-  }
-
   onLogoutClick(): void {
     this.authService.logout().subscribe({
       next: (response) => {

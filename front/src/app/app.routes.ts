@@ -5,14 +5,14 @@ import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
-  // Routes publiques (sans authentification)
+  // Public route (no auth needed)
   {
     path: '',
     component: HomeComponent,
     canActivate: [guestGuard]
   },
   
-  // Routes guest seulement (redirect si déjà connecté)
+  // Guest routes (login, register) with guestGuard 
   { 
     path: 'register', 
     component: RegisterComponent,
@@ -50,7 +50,7 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   
-  // Page 404 - redirection vers home
+  // Page 404 - Home redirection
   { 
     path: '**', 
     redirectTo: '' 

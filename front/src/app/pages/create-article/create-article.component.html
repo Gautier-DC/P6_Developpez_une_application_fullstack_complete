@@ -5,7 +5,6 @@
   </div>
   <div>
     <form class="article-form" (ngSubmit)="onSubmit()" #articleFormRef="ngForm">
-      <!-- Sélection/création de thème -->
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Thème de l'article</mat-label>
         <input
@@ -33,7 +32,6 @@
         <mat-hint> @if (isLoading()) { Chargement des thèmes... } </mat-hint>
       </mat-form-field>
 
-      <!-- Titre de l'article -->
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Titre de l'article</mat-label>
         <input
@@ -49,7 +47,6 @@
         <mat-hint align="end">{{ articleForm().title.length }}/200</mat-hint>
       </mat-form-field>
 
-      <!-- Contenu de l'article -->
       <mat-form-field appearance="outline" class="form-field content-field">
         <mat-label>Contenu de l'article</mat-label>
         <textarea
@@ -68,7 +65,6 @@
         >
       </mat-form-field>
 
-      <!-- Bouton de soumission -->
       <div class="button-container">
         <button
           mat-raised-button

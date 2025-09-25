@@ -30,9 +30,6 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.authService.getToken();
     
     if (token) {
-      console.log('🔍 Interceptor - Adding token to request:', req.url);
-      console.log('🔍 Interceptor - Token exists:', !!token);
-      
       const authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
@@ -41,7 +38,7 @@ export class AuthInterceptor implements HttpInterceptor {
         catchError(error => this.handleError(error))
       );
     } else {
-      console.log('🔍 Interceptor - No token for request:', req.url);
+      console.log('Interceptor - No token for request:', req.url);
     }
 
     return next.handle(req).pipe(
@@ -58,8 +55,7 @@ export class AuthInterceptor implements HttpInterceptor {
       const isLogoutRequest = error.url?.includes('/api/auth/logout');
       
       if (!isLogoutRequest) {
-        // Token is invalid, expired, or blacklisted - clear authentication locally
-        console.log('🔓 401 Unauthorized - Token may be blacklisted or expired');
+
         this.authService.logoutLocal();
       } else {
         console.log('🔓 401 on logout request - proceeding with local cleanup');

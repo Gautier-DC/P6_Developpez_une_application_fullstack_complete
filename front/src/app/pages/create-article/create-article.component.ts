@@ -129,10 +129,10 @@ export class CreateArticleComponent implements OnInit {
     );
 
     if (existingTheme) {
-      // Utiliser le thème existant
+      // Check if theme already exists
       this.createArticleWithTheme(existingTheme.id);
     } else {
-      // Créer un nouveau thème puis l'article
+      // Create new theme then create article
       this.themeService.createTheme({
         name: form.themeName,
         description: `tout ce qu'il faut savoir sur ${form.themeName}`

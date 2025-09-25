@@ -23,11 +23,11 @@ export class AppComponent {
   title = 'front';
   showHeader = false;
 
-  // Pages où le header ne doit pas apparaître
+  // Pages where header is hidden
   private hiddenHeaderRoutes = ['/','/login', '/register'];
 
   constructor(private router: Router) {
-    // Écouter les changements de route pour masquer/afficher le header
+    // Show or hide header based on route
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {

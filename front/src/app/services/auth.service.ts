@@ -125,10 +125,6 @@ export class AuthService {
       'Content-Type': 'application/json'
     };
 
-    console.log('🔍 Debug updateProfile - Token exists:', !!this._token());
-    console.log('🔍 Debug updateProfile - ProfileData:', profileData);
-    console.log('🔍 Debug updateProfile - Headers:', headers);
-
     return this.http.put<UserResponse>(`${this.API_URL}/update-profile`, profileData, { headers })
       .pipe(
         tap(updatedUser => {
@@ -157,17 +153,11 @@ export class AuthService {
     }
 
     this._isLoggingOut.set(true);
-
-    console.log('🔍 Debug logout - Token exists:', !!this._token());
-    console.log('🔍 Debug logout - Token value:', this._token()?.substring(0, 20) + '...');
-
     // Manually add Authorization header as fallback
     const headers = {
       'Authorization': `Bearer ${this._token()}`,
       'Content-Type': 'application/json'
     };
-
-    console.log('🔍 Debug - Manual headers:', headers);
 
     return this.http.post(`${this.API_URL}/logout`, {}, { 
       headers,
@@ -176,7 +166,7 @@ export class AuthService {
       tap(() => {
         console.log('✅ Server logout successful');
         this.clearAuth();
-        this.router.navigate(['/']); // Redirect to home page
+        this.router.navigate(['/']);
       }),
       catchError(error => {
         console.error('❌ Server logout failed:', error);

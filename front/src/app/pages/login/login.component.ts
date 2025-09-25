@@ -10,8 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/login-request';
-import { MatToolbar } from '@angular/material/toolbar';
-import { MinimalistHeaderComponent } from 'src/app/components/minimalist-header/minimalist-header.component';
 import { BackButtonComponent } from "src/app/components/back-button/back-button.component";
 
 @Component({
@@ -46,7 +44,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Message de succès depuis register
+    // Sucess message from registration
     this.route.queryParams.subscribe(params => {
       if (params['message']) {
         this.successMessage = params['message'];
@@ -54,7 +52,7 @@ export class LoginComponent implements OnInit {
     });
 
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      emailOrUsername: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }

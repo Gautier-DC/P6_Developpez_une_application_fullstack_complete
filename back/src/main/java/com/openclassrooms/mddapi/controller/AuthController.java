@@ -82,10 +82,10 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        log.info("Login attempt for email: {}", loginRequest.getEmail());
-        
+        log.info("Login attempt for identifier: {}", loginRequest.getEmailOrUsername());
+
         AuthResponse response = authService.login(loginRequest);
-        log.info("User logged in successfully: {}", loginRequest.getEmail());
+        log.info("User logged in successfully: {}", response.getEmail());
         
         return ResponseEntity.ok(response);
     }

@@ -82,28 +82,28 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Authenticate user and generate JWT token
-     * 
-     * @param request Login request containing email and password
+     *
+     * @param request Login request containing email or username and password
      * @return AuthResponse with JWT token and user info
      */
     @Override
     public AuthResponse login(LoginRequest request) {
-        log.info("Attempting to login user with email: {}", request.getEmail());
+        log.info("Attempting to login user with identifier: {}", request.getEmailOrUsername());
 
-        // Authenticate user
+        // Find user by email or username
+        User user = userRepository.findByEmailOrUsername(request.getEmailOrUsername(), request.getEmailOrUsername())
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmailOrUsername()));
+
+        // Authenticate user (use email for authentication)
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Get user from database
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
 
         // Generate JWT token
         String token = jwtService.generateToken(user.getEmail());
         
-        log.info("User logged in successfully: {}", request.getEmail());
+        log.info("User logged in successfully: {}", user.getEmail());
         return AuthResponse.fromUser(token, user, jwtExpirationInMs / 1000);
     }
 

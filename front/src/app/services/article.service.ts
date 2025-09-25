@@ -19,7 +19,6 @@ export class ArticleService {
     });
   }
 
-  // Articles
   getAllArticles(): Observable<Article[]> {
     return this.http.get<Article[]>(`${this.apiUrl}/articles`, {
       headers: this.getHeaders()
