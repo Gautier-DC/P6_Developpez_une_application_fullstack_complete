@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
         Article article = articleRepository.findById(request.getArticleId())
                 .orElseThrow(() -> new ArticleNotFoundException(request.getArticleId()));
 
-        Comment comment = new Comment(request.getContent(), user.getUsername(), article);
+        Comment comment = new Comment(request.getContent(), user, article);
         Comment savedComment = commentRepository.save(comment);
 
         log.info("Comment created successfully with ID: {}", savedComment.getId());
@@ -70,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new CommentNotFoundException(id));
 
-        if (!comment.getUsername().equals(user.getUsername())) {
+        if (!comment.getAuthor().getId().equals(user.getId())) {
             throw new UnauthorizedOperationException("User not authorized to delete this comment");
         }
 
@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponse> getCommentsByUser(String username) {
         log.info("Fetching comments by user: {}", username);
-        return commentRepository.findByUsername(username)
+        return commentRepository.findByAuthor_Username(username)
                 .stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -91,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
         return new CommentResponse(
                 comment.getId(),
                 comment.getContent(),
-                comment.getUsername(),
+                comment.getAuthor().getUsername(),
                 comment.getArticle().getId(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt()

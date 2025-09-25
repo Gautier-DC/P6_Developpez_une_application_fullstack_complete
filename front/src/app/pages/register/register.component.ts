@@ -7,11 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models/register-request';
-import { MinimalistHeaderComponent } from "src/app/components/minimalist-header/minimalist-header.component";
 import { BackButtonComponent } from "src/app/components/back-button/back-button.component";
+import { passwordValidator, getPasswordErrorMessage } from '../../validators/password.validator';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,7 @@ import { BackButtonComponent } from "src/app/components/back-button/back-button.
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MinimalistHeaderComponent,
+    MatTooltipModule,
     BackButtonComponent
 ],
   templateUrl: './register.component.html',
@@ -47,8 +48,16 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, passwordValidator()]]
     });
+  }
+
+  getPasswordErrorMessage(): string {
+    const passwordControl = this.registerForm.get('password');
+    if (passwordControl && passwordControl.errors) {
+      return getPasswordErrorMessage(passwordControl.errors);
+    }
+    return '';
   }
 
   onSubmit(): void {

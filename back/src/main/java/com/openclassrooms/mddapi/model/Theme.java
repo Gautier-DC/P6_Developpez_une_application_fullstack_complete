@@ -22,7 +22,7 @@ public class Theme {
     @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 255)
     private String name;
 
     @Column(length = 500)

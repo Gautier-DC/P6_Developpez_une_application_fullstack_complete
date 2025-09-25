@@ -47,6 +47,8 @@
             [type]="hidePassword ? 'password' : 'text'"
             formControlName="password"
             placeholder="Votre mot de passe"
+            matTooltip="Minimum 8 caractères : une majuscule, une minuscule, un chiffre et un caractère spécial"
+            matTooltipPosition="above"
           />
           <button
             mat-icon-button
@@ -58,10 +60,8 @@
               hidePassword ? "visibility_off" : "visibility"
             }}</mat-icon>
           </button>
-          @if (registerForm.get('password')?.hasError('required')) {
-          <mat-error> Le mot de passe est requis </mat-error>
-          } @if (registerForm.get('password')?.hasError('minlength')) {
-          <mat-error> Au moins 6 caractères requis </mat-error>
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <mat-error>{{ getPasswordErrorMessage() }}</mat-error>
           }
         </mat-form-field>
 

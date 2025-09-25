@@ -36,8 +36,15 @@
           name="password"
           placeholder="Mot de passe (optionnel)"
           [disabled]="isLoading"
+          appPasswordValidation
+          #passwordField="ngModel"
+          matTooltip="Minimum 8 caractères : une majuscule, une minuscule, un chiffre et un caractère spécial"
+          matTooltipPosition="above"
         />
         <mat-hint>Laisser vide pour conserver le mot de passe actuel</mat-hint>
+        @if (passwordField.invalid && passwordField.touched && userProfile.password.trim()) {
+        <mat-error>{{ getPasswordErrorMessage(passwordField) }}</mat-error>
+        }
       </mat-form-field>
 
       <button

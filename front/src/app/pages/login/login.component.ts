@@ -26,7 +26,6 @@ import { BackButtonComponent } from "src/app/components/back-button/back-button.
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MinimalistHeaderComponent,
     BackButtonComponent
 ],
   templateUrl: './login.component.html',

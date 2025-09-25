@@ -126,7 +126,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Not authenticated"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<UserResponse> updateProfile(@RequestBody UpdateProfileRequest updateRequest, 
+    public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest updateRequest,
                                                      Authentication authentication) {
         try {
             String email = authenticationHelperService.getCurrentUserEmail(authentication);
