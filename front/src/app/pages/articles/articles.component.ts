@@ -16,10 +16,10 @@ import { CardComponent } from '../../components/card/card.component';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    CardComponent
+    CardComponent,
   ],
   templateUrl: './articles.component.html',
-  styleUrls: ['./articles.component.scss']
+  styleUrls: ['./articles.component.scss'],
 })
 export class ArticlesComponent implements OnInit {
   private articleService = inject(ArticleService);
@@ -44,7 +44,7 @@ export class ArticlesComponent implements OnInit {
       error: (error) => {
         console.error('Error loading articles:', error);
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -69,12 +69,11 @@ export class ArticlesComponent implements OnInit {
     this.router.navigate(['/articles', article.id]);
   }
 
-
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 }

@@ -82,10 +82,10 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        log.info("Login attempt for email: {}", loginRequest.getEmail());
-        
+        log.info("Login attempt for identifier: {}", loginRequest.getEmailOrUsername());
+
         AuthResponse response = authService.login(loginRequest);
-        log.info("User logged in successfully: {}", loginRequest.getEmail());
+        log.info("User logged in successfully: {}", response.getEmail());
         
         return ResponseEntity.ok(response);
     }
@@ -126,7 +126,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Not authenticated"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<UserResponse> updateProfile(@RequestBody UpdateProfileRequest updateRequest, 
+    public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest updateRequest,
                                                      Authentication authentication) {
         try {
             String email = authenticationHelperService.getCurrentUserEmail(authentication);

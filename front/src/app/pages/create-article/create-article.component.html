@@ -1,99 +1,83 @@
-<main>
-  <section>
-    <div class="container">
-      <div class="flex">
-        <app-back-button></app-back-button>
-        <h1>Créer un nouvel article</h1>
-      </div>
-      <div >
-        <form
-          class="article-form"
-          (ngSubmit)="onSubmit()"
-          #articleFormRef="ngForm"
+<div class="container-detailed">
+  <div class="flex">
+    <app-back-button></app-back-button>
+    <h1>Créer un nouvel article</h1>
+  </div>
+  <div>
+    <form class="article-form" (ngSubmit)="onSubmit()" #articleFormRef="ngForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Thème de l'article</mat-label>
+        <input
+          type="text"
+          matInput
+          [ngModel]="articleForm().themeName"
+          (ngModelChange)="updateThemeName($event)"
+          name="themeName"
+          required
+          [disabled]="isSubmitting()"
+          [matAutocomplete]="auto"
+          matTooltip="Tapez pour filtrer les thèmes existants ou créer un nouveau thème"
+          placeholder="Sélectionnez un thème ou tapez pour en créer un nouveau"
+        />
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="null">
+          @for (theme of filteredThemes(); track theme.id) {
+          <mat-option
+            [value]="theme.name"
+            (onSelectionChange)="onThemeSelected(theme)"
+          >
+            {{ theme.name }}
+          </mat-option>
+          }
+        </mat-autocomplete>
+        <mat-hint> @if (isLoading()) { Chargement des thèmes... } </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Titre de l'article</mat-label>
+        <input
+          matInput
+          [ngModel]="articleForm().title"
+          (ngModelChange)="updateTitle($event)"
+          name="title"
+          required
+          maxlength="200"
+          [disabled]="isSubmitting()"
+          placeholder="Entrez le titre de votre article"
+        />
+        <mat-hint align="end">{{ articleForm().title.length }}/200</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field content-field">
+        <mat-label>Contenu de l'article</mat-label>
+        <textarea
+          matInput
+          [ngModel]="articleForm().content"
+          (ngModelChange)="updateContent($event)"
+          name="content"
+          required
+          rows="10"
+          [disabled]="isSubmitting()"
+          placeholder="Rédigez le contenu de votre article..."
         >
-          <!-- Sélection/création de thème -->
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Thème de l'article</mat-label>
-            <input
-              type="text"
-              matInput
-              [ngModel]="articleForm().themeName"
-              (ngModelChange)="updateThemeName($event)"
-              name="themeName"
-              required
-              [disabled]="isSubmitting()"
-              [matAutocomplete]="auto"
-              matTooltip="Tapez pour filtrer les thèmes existants ou créer un nouveau thème"
-              placeholder="Sélectionnez un thème ou tapez pour en créer un nouveau"
-            />
-            <mat-autocomplete #auto="matAutocomplete" [displayWith]="null">
-              @for (theme of filteredThemes(); track theme.id) {
-              <mat-option
-                [value]="theme.name"
-                (onSelectionChange)="onThemeSelected(theme)"
-              >
-                {{ theme.name }}
-              </mat-option>
-              }
-            </mat-autocomplete>
-            <mat-hint>
-              @if (isLoading()) { Chargement des thèmes... }
-            </mat-hint>
-          </mat-form-field>
+        </textarea>
+        <mat-hint align="end"
+          >{{ articleForm().content.length }} caractères</mat-hint
+        >
+      </mat-form-field>
 
-          <!-- Titre de l'article -->
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Titre de l'article</mat-label>
-            <input
-              matInput
-              [ngModel]="articleForm().title"
-              (ngModelChange)="updateTitle($event)"
-              name="title"
-              required
-              maxlength="200"
-              [disabled]="isSubmitting()"
-              placeholder="Entrez le titre de votre article"
-            />
-            <mat-hint align="end"
-              >{{ articleForm().title.length }}/200</mat-hint
-            >
-          </mat-form-field>
-
-          <!-- Contenu de l'article -->
-          <mat-form-field appearance="outline" class="form-field content-field">
-            <mat-label>Contenu de l'article</mat-label>
-            <textarea
-              matInput
-              [ngModel]="articleForm().content"
-              (ngModelChange)="updateContent($event)"
-              name="content"
-              required
-              rows="10"
-              [disabled]="isSubmitting()"
-              placeholder="Rédigez le contenu de votre article..."
-            >
-            </textarea>
-            <mat-hint align="end"
-              >{{ articleForm().content.length }} caractères</mat-hint
-            >
-          </mat-form-field>
-
-          <!-- Bouton de soumission -->
-          <div class="button-container">
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              class="create-button"
-              [disabled]="!isFormValid() || isSubmitting()"
-            >
-              @if (isSubmitting()) {
-              <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
-              Création en cours... } @else { Créer }
-            </button>
-          </div>
-        </form>
+      <div class="button-container">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="create-button"
+          [disabled]="!isFormValid() || isSubmitting()"
+        >
+          @if (isSubmitting()) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          Création en cours... } @else { Créer }
+        </button>
       </div>
-    </div>
-  </section>
-</main>
+    </form>
+  </div>
+</div>

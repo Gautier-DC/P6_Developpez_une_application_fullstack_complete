@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
@@ -13,6 +14,8 @@ import { UpdateProfileRequest } from '../../models/auth.models';
 import { CardComponent } from '../../components/card/card.component';
 import { ThemeService } from '../../services/theme.service';
 import { Theme } from '../../models/article.models';
+import { PasswordValidationDirective } from '../../directives/password-validation.directive';
+import { getPasswordErrorMessage } from '../../validators/password.validator';
 
 @Component({
   selector: 'app-profile',
@@ -26,7 +29,9 @@ import { Theme } from '../../models/article.models';
     MatFormFieldModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    CardComponent
+    MatTooltipModule,
+    CardComponent,
+    PasswordValidationDirective,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -65,8 +70,7 @@ export class ProfileComponent implements OnInit {
         this.userProfile.username = user.username || '';
         this.userProfile.email = user.email || '';
       },
-      error: (error) => {
-        console.log('Could not fetch fresh user data:', error);
+      error: () => {
         // Keep using cached data
       },
     });
@@ -97,7 +101,6 @@ export class ProfileComponent implements OnInit {
     // Call the API
     this.authService.updateProfile(updateData).subscribe({
       next: (updatedUser) => {
-        console.log('✅ Profile updated successfully:', updatedUser);
 
         // Update local form with fresh data
         this.userProfile.username = updatedUser.username;
@@ -158,6 +161,30 @@ export class ProfileComponent implements OnInit {
       return false;
     }
 
+    // Password validation (only if password is provided)
+    if (this.userProfile.password.trim()) {
+      const password = this.userProfile.password.trim();
+
+      // Validation des critères du mot de passe
+      if (
+        password.length < 8 ||
+        !/\d/.test(password) ||
+        !/[a-z]/.test(password) ||
+        !/[A-Z]/.test(password) ||
+        !/[@#$%^&+=!?.,:;()\[\]{}|\-_~`]/.test(password)
+      ) {
+        this.snackBar.open(
+          'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial',
+          'Fermer',
+          {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+          }
+        );
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -175,7 +202,7 @@ export class ProfileComponent implements OnInit {
         // Get all themes and filter by subscribed IDs
         this.themeService.getAllThemes().subscribe({
           next: (allThemes) => {
-            this.subscribedThemes = allThemes.filter(theme =>
+            this.subscribedThemes = allThemes.filter((theme) =>
               subscriptionIds.includes(theme.id)
             );
             this.isLoadingSubscriptions = false;
@@ -183,20 +210,22 @@ export class ProfileComponent implements OnInit {
           error: (error) => {
             console.error('Error loading themes:', error);
             this.isLoadingSubscriptions = false;
-          }
+          },
         });
       },
       error: (error) => {
         console.error('Error loading subscriptions:', error);
         this.isLoadingSubscriptions = false;
-      }
+      },
     });
   }
 
   onUnsubscribe(theme: Theme): void {
     this.themeService.unsubscribeFromTheme(theme.id).subscribe({
       next: () => {
-        this.subscribedThemes = this.subscribedThemes.filter(t => t.id !== theme.id);
+        this.subscribedThemes = this.subscribedThemes.filter(
+          (t) => t.id !== theme.id
+        );
         this.snackBar.open(`Désabonné du thème "${theme.name}"`, 'Fermer', {
           duration: 3000,
           panelClass: ['success-snackbar'],
@@ -208,7 +237,14 @@ export class ProfileComponent implements OnInit {
           duration: 3000,
           panelClass: ['error-snackbar'],
         });
-      }
+      },
     });
+  }
+
+  getPasswordErrorMessage(passwordField: any): string {
+    if (passwordField && passwordField.errors) {
+      return getPasswordErrorMessage(passwordField.errors);
+    }
+    return '';
   }
 }

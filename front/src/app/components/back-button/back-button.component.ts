@@ -8,23 +8,20 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatIconModule],
   templateUrl: './back-button.component.html',
-  styleUrls: ['./back-button.component.scss']
+  styleUrls: ['./back-button.component.scss'],
 })
 export class BackButtonComponent {
-  @Input() customRoute?: string; // Route personnalisée si besoin
+  @Input() customRoute?: string;
   @Input() ariaLabel: string = 'Go back';
   @Output() backClick = new EventEmitter<void>();
 
-  constructor(
-    private location: Location,
-    private router: Router
-  ) {}
+  constructor(private location: Location, private router: Router) {}
 
   onBackClick(): void {
-    // Émettre l'événement pour le composant parent
+    // Emit the backClick event for parent components
     this.backClick.emit();
-    
-    // Logique de navigation
+
+    // Navigation logic
     if (this.customRoute) {
       this.router.navigate([this.customRoute]);
     } else {

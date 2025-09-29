@@ -82,28 +82,30 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Authenticate user and generate JWT token
-     * 
-     * @param request Login request containing email and password
+     *
+     * @param request Login request containing email or username and password
      * @return AuthResponse with JWT token and user info
      */
     @Override
     public AuthResponse login(LoginRequest request) {
-        log.info("Attempting to login user with email: {}", request.getEmail());
+        log.info("Attempting to login user with identifier: {}", request.getEmailOrUsername());
 
-        // Authenticate user
+        // Authenticate user directly - let Spring Security handle both user not found and wrong password
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getEmailOrUsername(), request.getPassword()));
+
+        // If authentication succeeds, get the user details
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Get user from database
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
 
         // Generate JWT token
         String token = jwtService.generateToken(user.getEmail());
         
-        log.info("User logged in successfully: {}", request.getEmail());
+        log.info("User logged in successfully: {}", user.getEmail());
         return AuthResponse.fromUser(token, user, jwtExpirationInMs / 1000);
     }
 
@@ -120,8 +122,8 @@ public class AuthServiceImpl implements AuthService {
 
         return new UserResponse(
                 user.getId(),
-                user.getEmail(),
                 user.getUsername(),
+                user.getEmail(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
     }
@@ -135,8 +137,8 @@ public class AuthServiceImpl implements AuthService {
 
         return new UserResponse(
                 user.getId(),
-                user.getEmail(),
                 user.getUsername(),
+                user.getEmail(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
     }
@@ -150,9 +152,9 @@ public class AuthServiceImpl implements AuthService {
                 request.getPassword() != null && !request.getPassword().isEmpty());
         
         try {
-            // Find the user by email
+            // Find the user by email - should always exist for authenticated users
             User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found - this should not happen"));
             
             log.debug("Found user: id={}, email={}, username={}", user.getId(), user.getEmail(), user.getUsername());
         
@@ -162,9 +164,9 @@ public class AuthServiceImpl implements AuthService {
         if (request.getUsername() != null && !request.getUsername().trim().isEmpty()) {
             String newUsername = request.getUsername().trim();
             if (!newUsername.equals(user.getUsername())) {
-                // Check if username is already taken
-                if (userRepository.findByUsername(newUsername).isPresent()) {
-                    throw new UserAlreadyExistsException("Username already exists: " + newUsername);
+                // Check if username is already taken by another user
+                if (userRepository.findByUsername(newUsername).filter(u -> !u.getId().equals(user.getId())).isPresent()) {
+                    throw new UserAlreadyExistsException("This username is not available");
                 }
                 user.setUsername(newUsername);
                 isUpdated = true;
@@ -195,9 +197,10 @@ public class AuthServiceImpl implements AuthService {
         }
         
         // Save only if there were changes
+        User savedUser = user;
         if (isUpdated) {
             // Remove manual timestamp setting - let @UpdateTimestamp handle it
-            user = userRepository.save(user);
+            savedUser = userRepository.save(user);
             log.info("Profile updated successfully for user: {}", email);
         } else {
             log.info("No changes detected for user profile: {}", email);
@@ -205,11 +208,11 @@ public class AuthServiceImpl implements AuthService {
         
             // Return updated user response
             return new UserResponse(
-                    user.getId(),
-                    user.getEmail(),
-                    user.getUsername(),
-                    user.getCreatedAt(),
-                    user.getUpdatedAt());
+                    savedUser.getId(),
+                    savedUser.getUsername(),
+                    savedUser.getEmail(),
+                    savedUser.getCreatedAt(),
+                    savedUser.getUpdatedAt());
                     
         } catch (Exception e) {
             log.error("Error updating profile for user {}: {}", email, e.getMessage(), e);

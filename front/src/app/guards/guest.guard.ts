@@ -7,10 +7,10 @@ export const guestGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const isAuth = authService.isLoggedIn();
-  
+
   if (isAuth) {
     // if already authenticated, redirect to articles
-    router.navigate(['/articles']); 
+    router.navigate(['/articles']);
     return false;
   } else {
     // If not connected, allow access to guest pages (login/register)

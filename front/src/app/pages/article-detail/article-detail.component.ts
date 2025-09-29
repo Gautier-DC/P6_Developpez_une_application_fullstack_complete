@@ -9,7 +9,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ArticleService } from '../../services/article.service';
-import { Article, Comment, CreateCommentRequest } from '../../models/article.models';
+import {
+  Article,
+  Comment,
+  CreateCommentRequest,
+} from '../../models/article.models';
 import { BackButtonComponent } from '../../components/back-button/back-button.component';
 
 @Component({
@@ -24,10 +28,10 @@ import { BackButtonComponent } from '../../components/back-button/back-button.co
     MatFormFieldModule,
     MatProgressSpinnerModule,
     FormsModule,
-    BackButtonComponent
+    BackButtonComponent,
   ],
   templateUrl: './article-detail.component.html',
-  styleUrls: ['./article-detail.component.scss']
+  styleUrls: ['./article-detail.component.scss'],
 })
 export class ArticleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -61,8 +65,9 @@ export class ArticleDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error loading article:', error);
         this.isLoading = false;
-        this.router.navigate(['/articles']);
-      }
+        // Navigate to 404 page for non-existent articles
+        this.router.navigate(['/404']);
+      },
     });
   }
 
@@ -76,7 +81,7 @@ export class ArticleDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error loading comments:', error);
         this.isCommentsLoading = false;
-      }
+      },
     });
   }
 
@@ -88,7 +93,7 @@ export class ArticleDetailComponent implements OnInit {
     this.isSubmittingComment = true;
     const commentRequest: CreateCommentRequest = {
       content: this.newComment.trim(),
-      articleId: this.article.id
+      articleId: this.article.id,
     };
 
     this.articleService.createComment(commentRequest).subscribe({
@@ -100,7 +105,7 @@ export class ArticleDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error creating comment:', error);
         this.isSubmittingComment = false;
-      }
+      },
     });
   }
 
@@ -108,7 +113,7 @@ export class ArticleDetailComponent implements OnInit {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 

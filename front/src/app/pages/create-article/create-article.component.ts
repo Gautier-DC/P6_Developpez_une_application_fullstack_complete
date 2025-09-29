@@ -31,10 +31,10 @@ import { BackButtonComponent } from 'src/app/components/back-button/back-button.
     MatIconModule,
     MatAutocompleteModule,
     MatTooltipModule,
-    BackButtonComponent
+    BackButtonComponent,
   ],
   templateUrl: './create-article.component.html',
-  styleUrl: './create-article.component.scss'
+  styleUrl: './create-article.component.scss',
 })
 export class CreateArticleComponent implements OnInit {
   private articleService = inject(ArticleService);
@@ -49,7 +49,7 @@ export class CreateArticleComponent implements OnInit {
   articleForm = signal({
     title: '',
     content: '',
-    themeName: ''
+    themeName: '',
   });
 
   filteredThemes = computed(() => {
@@ -57,7 +57,7 @@ export class CreateArticleComponent implements OnInit {
     if (!filter) {
       return this.themes();
     }
-    return this.themes().filter(theme =>
+    return this.themes().filter((theme) =>
       theme.name.toLowerCase().includes(filter)
     );
   });
@@ -79,35 +79,39 @@ export class CreateArticleComponent implements OnInit {
           status: error.status,
           statusText: error.statusText,
           message: error.message,
-          url: error.url
+          url: error.url,
         });
-        this.snackBar.open(`Erreur lors du chargement des thèmes (${error.status})`, 'Fermer', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        this.snackBar.open(
+          `Erreur lors du chargement des thèmes (${error.status})`,
+          'Fermer',
+          {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+          }
+        );
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
   updateThemeName(value: string): void {
-    this.articleForm.update(form => ({
+    this.articleForm.update((form) => ({
       ...form,
-      themeName: value
+      themeName: value,
     }));
   }
 
   updateTitle(value: string): void {
-    this.articleForm.update(form => ({
+    this.articleForm.update((form) => ({
       ...form,
-      title: value
+      title: value,
     }));
   }
 
   updateContent(value: string): void {
-    this.articleForm.update(form => ({
+    this.articleForm.update((form) => ({
       ...form,
-      content: value
+      content: value,
     }));
   }
 
@@ -115,7 +119,7 @@ export class CreateArticleComponent implements OnInit {
     if (!this.isFormValid()) {
       this.snackBar.open('Veuillez remplir tous les champs', 'Fermer', {
         duration: 3000,
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
       return;
     }
@@ -123,33 +127,39 @@ export class CreateArticleComponent implements OnInit {
     this.isSubmitting.set(true);
     const form = this.articleForm();
 
-    // Vérifier si le thème existe
-    const existingTheme = this.themes().find(theme =>
-      theme.name.toLowerCase() === form.themeName.toLowerCase()
+    // Check if theme exists
+    const existingTheme = this.themes().find(
+      (theme) => theme.name.toLowerCase() === form.themeName.toLowerCase()
     );
 
     if (existingTheme) {
-      // Utiliser le thème existant
+      // Check if theme already exists
       this.createArticleWithTheme(existingTheme.id);
     } else {
-      // Créer un nouveau thème puis l'article
-      this.themeService.createTheme({
-        name: form.themeName,
-        description: `tout ce qu'il faut savoir sur ${form.themeName}`
-      }).subscribe({
-        next: (newTheme) => {
-          this.themes.update(themes => [...themes, newTheme]);
-          this.createArticleWithTheme(newTheme.id);
-        },
-        error: (error) => {
-          console.error('Error creating theme:', error);
-          this.snackBar.open('Erreur lors de la création du thème', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-          this.isSubmitting.set(false);
-        }
-      });
+      // Create new theme then create article
+      this.themeService
+        .createTheme({
+          name: form.themeName,
+          description: `tout ce qu'il faut savoir sur ${form.themeName}`,
+        })
+        .subscribe({
+          next: (newTheme) => {
+            this.themes.update((themes) => [...themes, newTheme]);
+            this.createArticleWithTheme(newTheme.id);
+          },
+          error: (error) => {
+            console.error('Error creating theme:', error);
+            this.snackBar.open(
+              'Erreur lors de la création du thème',
+              'Fermer',
+              {
+                duration: 3000,
+                panelClass: ['error-snackbar'],
+              }
+            );
+            this.isSubmitting.set(false);
+          },
+        });
     }
   }
 
@@ -158,25 +168,29 @@ export class CreateArticleComponent implements OnInit {
     const createRequest: CreateArticleRequest = {
       title: form.title,
       content: form.content,
-      themeId: themeId
+      themeId: themeId,
     };
 
     this.articleService.createArticle(createRequest).subscribe({
       next: () => {
         this.snackBar.open('Article créé avec succès !', 'Fermer', {
           duration: 3000,
-          panelClass: ['success-snackbar']
+          panelClass: ['success-snackbar'],
         });
         this.router.navigate(['/articles']);
       },
       error: (error) => {
         console.error('Error creating article:', error);
-        this.snackBar.open('Erreur lors de la création de l\'article', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.snackBar.open(
+          "Erreur lors de la création de l'article",
+          'Fermer',
+          {
+            duration: 3000,
+            panelClass: ['error-snackbar'],
+          }
+        );
         this.isSubmitting.set(false);
-      }
+      },
     });
   }
 

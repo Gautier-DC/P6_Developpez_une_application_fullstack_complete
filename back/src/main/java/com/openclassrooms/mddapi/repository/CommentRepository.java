@@ -15,7 +15,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByArticleOrderByCreatedAtAsc(Article article);
 
-    List<Comment> findByUsername(String username);
+    List<Comment> findByAuthor_Username(String username);
 
     @Query("SELECT c FROM Comment c WHERE c.article = :article ORDER BY c.createdAt ASC")
     List<Comment> findByArticleOrderByCreatedAt(Article article);

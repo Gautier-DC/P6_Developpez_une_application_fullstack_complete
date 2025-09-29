@@ -8,13 +8,9 @@ import { CardComponent } from '../../components/card/card.component';
 @Component({
   selector: 'app-themes',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatProgressSpinnerModule,
-    CardComponent
-  ],
+  imports: [CommonModule, MatProgressSpinnerModule, CardComponent],
   templateUrl: './themes.component.html',
-  styleUrls: ['./themes.component.scss']
+  styleUrls: ['./themes.component.scss'],
 })
 export class ThemesComponent implements OnInit {
   private themeService = inject(ThemeService);
@@ -39,7 +35,7 @@ export class ThemesComponent implements OnInit {
       error: (error) => {
         console.error('Error loading themes:', error);
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -50,7 +46,7 @@ export class ThemesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading user subscriptions:', error);
-      }
+      },
     });
   }
 
@@ -78,7 +74,7 @@ export class ThemesComponent implements OnInit {
       error: (error) => {
         console.error('Error subscribing to theme:', error);
         this.processingThemes.delete(theme.id);
-      }
+      },
     });
   }
 
@@ -91,7 +87,7 @@ export class ThemesComponent implements OnInit {
       error: (error) => {
         console.error('Error unsubscribing from theme:', error);
         this.processingThemes.delete(theme.id);
-      }
+      },
     });
   }
 

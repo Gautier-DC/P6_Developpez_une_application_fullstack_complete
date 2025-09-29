@@ -26,8 +26,9 @@ public class Comment {
     @NotBlank(message = "Content is mandatory")
     private String content;
 
-    @Column(nullable = false, length = 50)
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id", nullable = false)
@@ -41,9 +42,9 @@ public class Comment {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Comment(String content, String username, Article article) {
+    public Comment(String content, User author, Article article) {
         this.content = content;
-        this.username = username;
+        this.author = author;
         this.article = article;
     }
 

@@ -30,20 +30,21 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
     /**
      * Implementation of UserDetailsService interface
      * Used by Spring Security for authentication
+     * Accepts both email and username as identifier
      */
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.debug("Loading user by email: {}", email);
-        
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        
+    public UserDetails loadUserByUsername(String emailOrUsername) throws UsernameNotFoundException {
+        log.debug("Loading user by email or username: {}", emailOrUsername);
+
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);
+
         if (userOptional.isEmpty()) {
-            log.warn("User not found with email: {}", email);
-            throw new UsernameNotFoundException("User not found with email: " + email);
+            log.warn("User not found with email or username: {}", emailOrUsername);
+            throw new UsernameNotFoundException("User not found");
         }
-        
+
         User user = userOptional.get();
-        log.debug("User loaded successfully: {}", email);
+        log.debug("User loaded successfully: {}", emailOrUsername);
         
         // Return Spring Security UserDetails object
         return org.springframework.security.core.userdetails.User.builder()

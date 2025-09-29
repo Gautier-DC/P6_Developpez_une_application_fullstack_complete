@@ -4,7 +4,6 @@
   <mat-card>
     <h1 class="title">Se connecter</h1>
     <mat-card-content>
-      <!-- Message de succès -->
       @if (successMessage) {
       <div class="success-message">
         <mat-icon color="primary">check_circle</mat-icon>
@@ -13,23 +12,18 @@
       }
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <!-- Email field -->
-        <mat-label>Adresse email</mat-label>
+        <mat-label>Email ou nom d'utilisateur</mat-label>
         <mat-form-field appearance="outline">
           <input
             matInput
-            type="email"
-            formControlName="email"
-            placeholder="votre@email.com"
+            formControlName="emailOrUsername"
+            placeholder="votre@email.com ou nom d'utilisateur"
           />
-          @if (loginForm.get('email')?.hasError('required')) {
-          <mat-error> L'email est requis </mat-error>
-          } @if (loginForm.get('email')?.hasError('email')) {
-          <mat-error> Format d'email invalide </mat-error>
+          @if (loginForm.get('emailOrUsername')?.hasError('required')) {
+          <mat-error> L'email ou nom d'utilisateur est requis </mat-error>
           }
         </mat-form-field>
 
-        <!-- Password field -->
         <mat-label>Mot de passe</mat-label>
         <mat-form-field appearance="outline">
           <input
@@ -55,7 +49,6 @@
           }
         </mat-form-field>
 
-        <!-- Error message -->
         @if (errorMessage) {
         <div class="error-message">
           <mat-icon color="warn">error</mat-icon>
@@ -63,7 +56,6 @@
         </div>
         }
 
-        <!-- Submit button -->
         <div class="flex-col">
           <button
             mat-raised-button
@@ -76,7 +68,12 @@
             Connexion... } @else { Se connecter }
           </button>
 
-          <a matButton type="link" (click)="goToRegister()">
+          <a
+            matButton
+            type="link"
+            class="register-link"
+            (click)="goToRegister()"
+          >
             Pas encore de compte ? S'inscrire
           </a>
         </div>
