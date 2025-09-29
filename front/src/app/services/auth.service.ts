@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, finalize } from 'rxjs/operators';
 
-import { 
-  LoginRequest, 
-  RegisterRequest, 
-  AuthResponse, 
-  UserResponse, 
+import {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  UserResponse,
   UpdateProfileRequest,
   ErrorResponse,
-  AUTH_STORAGE_KEYS 
+  AUTH_STORAGE_KEYS,
 } from '../models/auth.models';
 
 /**
@@ -20,32 +20,31 @@ import {
  * Uses Angular Signals for reactive state management
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:8080/api/auth';
-  
+
   // Signals for reactive state management
   private readonly _currentUser = signal<UserResponse | null>(null);
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _token = signal<string | null>(null);
   private readonly _isLoggingOut = signal<boolean>(false);
-  
+
   // Computed signals (derived state)
   public readonly currentUser = this._currentUser.asReadonly();
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly token = this._token.asReadonly();
   public readonly isLoggingOut = this._isLoggingOut.asReadonly();
-  public readonly isLoggedIn = computed(() => this._isAuthenticated() && this._token() !== null);
-  
+  public readonly isLoggedIn = computed(
+    () => this._isAuthenticated() && this._token() !== null
+  );
+
   // Traditional BehaviorSubject for compatibility with guards and interceptors
   private readonly _authStatus = new BehaviorSubject<boolean>(false);
   public readonly authStatus$ = this._authStatus.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
+  constructor(private http: HttpClient, private router: Router) {
     this.initializeAuth();
   }
 
@@ -56,7 +55,7 @@ export class AuthService {
   private initializeAuth(): void {
     const token = this.getStoredToken();
     const user = this.getStoredUser();
-    
+
     if (token && user && this.isTokenValid(token)) {
       this._token.set(token);
       this._currentUser.set(user);
@@ -73,14 +72,15 @@ export class AuthService {
    * @returns Observable<AuthResponse>
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
+    return this.http
+      .post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap(response => {
+        tap((response) => {
           this.setAuthData(response);
           // Redirect to articles after successful login
           this.router.navigate(['/articles']);
         }),
-        catchError(error => this.handleAuthError('Login failed', error))
+        catchError((error) => this.handleAuthError('Login failed', error))
       );
   }
 
@@ -90,14 +90,17 @@ export class AuthService {
    * @returns Observable<AuthResponse>
    */
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData)
+    return this.http
+      .post<AuthResponse>(`${this.API_URL}/register`, userData)
       .pipe(
-        tap(response => {
+        tap((response) => {
           this.setAuthData(response);
           // Redirect to articles after successful registration
           this.router.navigate(['/articles']);
         }),
-        catchError(error => this.handleAuthError('Registration failed', error))
+        catchError((error) =>
+          this.handleAuthError('Registration failed', error)
+        )
       );
   }
 
@@ -106,11 +109,12 @@ export class AuthService {
    * @returns Observable<UserResponse>
    */
   getCurrentUser(): Observable<UserResponse> {
-    return this.http.get<UserResponse>(`${this.API_URL}/me`)
-      .pipe(
-        tap(user => this._currentUser.set(user)),
-        catchError(error => this.handleAuthError('Failed to get user profile', error))
-      );
+    return this.http.get<UserResponse>(`${this.API_URL}/me`).pipe(
+      tap((user) => this._currentUser.set(user)),
+      catchError((error) =>
+        this.handleAuthError('Failed to get user profile', error)
+      )
+    );
   }
 
   /**
@@ -121,19 +125,27 @@ export class AuthService {
   updateProfile(profileData: UpdateProfileRequest): Observable<UserResponse> {
     // Manually add Authorization header as fallback (like logout)
     const headers = {
-      'Authorization': `Bearer ${this._token()}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${this._token()}`,
+      'Content-Type': 'application/json',
     };
 
-    return this.http.put<UserResponse>(`${this.API_URL}/update-profile`, profileData, { headers })
+    return this.http
+      .put<UserResponse>(`${this.API_URL}/update-profile`, profileData, {
+        headers,
+      })
       .pipe(
-        tap(updatedUser => {
+        tap((updatedUser) => {
           // Update current user in state
           this._currentUser.set(updatedUser);
           // Update stored user data
-          localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+          localStorage.setItem(
+            AUTH_STORAGE_KEYS.USER,
+            JSON.stringify(updatedUser)
+          );
         }),
-        catchError(error => this.handleAuthError('Failed to update profile', error))
+        catchError((error) =>
+          this.handleAuthError('Failed to update profile', error)
+        )
       );
   }
 
@@ -146,7 +158,7 @@ export class AuthService {
     if (!this._token()) {
       this.clearAuth();
       this.router.navigate(['/auth/login']);
-      return new Observable(observer => {
+      return new Observable((observer) => {
         observer.next('Already logged out');
         observer.complete();
       });
@@ -155,32 +167,34 @@ export class AuthService {
     this._isLoggingOut.set(true);
     // Manually add Authorization header as fallback
     const headers = {
-      'Authorization': `Bearer ${this._token()}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${this._token()}`,
+      'Content-Type': 'application/json',
     };
 
-    return this.http.post(`${this.API_URL}/logout`, {}, { 
-      headers,
-      responseType: 'text' 
-    }).pipe(
-      tap(() => {
-        console.log('✅ Server logout successful');
-        this.clearAuth();
-        this.router.navigate(['/']);
-      }),
-      catchError(error => {
-        console.error('❌ Server logout failed:', error);
-        console.log('🔍 Debug - Error status:', error.status);
-        console.log('🔍 Debug - Error message:', error.message);
-        console.log('🔍 Debug - Full error:', error);
-        
-        // Even if server logout fails, clear local data
-        this.clearAuth();
-        this.router.navigate(['/']); // Redirect to home page
-        return throwError(() => new Error('Logout completed locally'));
-      }),
-      finalize(() => this._isLoggingOut.set(false))
-    );
+    return this.http
+      .post(
+        `${this.API_URL}/logout`,
+        {},
+        {
+          headers,
+          responseType: 'text',
+        }
+      )
+      .pipe(
+        tap(() => {
+          this.clearAuth();
+          this.router.navigate(['/']);
+        }),
+        catchError((error) => {
+          console.error('❌ Server logout failed:', error);
+
+          // Even if server logout fails, clear local data
+          this.clearAuth();
+          this.router.navigate(['/']); // Redirect to home page
+          return throwError(() => new Error('Logout completed locally'));
+        }),
+        finalize(() => this._isLoggingOut.set(false))
+      );
   }
 
   /**
@@ -224,25 +238,23 @@ export class AuthService {
     // Store token
     this._token.set(response.token);
     localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, response.token);
-    
+
     // Create user object from auth response
     const user: UserResponse = {
       id: 0, // Will be updated when we fetch full profile
       email: response.email,
       username: response.username,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
+
     // Store user
     this._currentUser.set(user);
     localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
-    
+
     // Update authentication status
     this._isAuthenticated.set(true);
     this._authStatus.next(true);
-    
-    console.log('✅ User authenticated successfully:', response.username);
   }
 
   /**
@@ -254,11 +266,9 @@ export class AuthService {
     this._isAuthenticated.set(false);
     this._isLoggingOut.set(false);
     this._authStatus.next(false);
-    
+
     localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
     localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
-    
-    console.log('🔓 User logged out');
   }
 
   /**
@@ -291,7 +301,7 @@ export class AuthService {
    */
   private isTokenValid(token: string): boolean {
     if (!token) return false;
-    
+
     try {
       // Simple JWT expiration check
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -304,23 +314,37 @@ export class AuthService {
   }
 
   /**
-   * Handle authentication errors
-   * @param message - Error message
+   * Handle authentication errors with better user messaging
+   * @param message - Default error message
    * @param error - HTTP error response
    */
-  private handleAuthError(message: string, error: HttpErrorResponse): Observable<never> {
-    let errorMessage = message;
-    
+  private handleAuthError(
+    message: string,
+    error: HttpErrorResponse
+  ): Observable<never> {
+    let errorMessage: string;
+
+    // Check if server provided a specific error message
     if (error.error && error.error.message) {
       errorMessage = error.error.message;
-    } else if (error.status === 401) {
-      errorMessage = 'Invalid credentials';
-      this.clearAuth(); // Clear auth on 401
-    } else if (error.status === 0) {
-      errorMessage = 'Unable to connect to server';
+    } else {
+      // Fallback based on status code
+      switch (error.status) {
+        case 401:
+          errorMessage = 'Email ou mot de passe invalide';
+          break;
+        case 500:
+          errorMessage = 'Impossible de se connecter au serveur';
+          break;
+        case 504:
+          errorMessage = 'Une erreur est survenue lors de la connexion';
+          break;
+        default:
+          errorMessage = message;
+      }
     }
-    
-    console.error('❌ Auth Error:', errorMessage, error);
+
+    console.error('❌ Auth Error:', { status: error.status, message: errorMessage }, error);
     return throwError(() => new Error(errorMessage));
   }
 }

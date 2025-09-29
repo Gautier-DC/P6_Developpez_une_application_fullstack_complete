@@ -60,7 +60,8 @@
               hidePassword ? "visibility_off" : "visibility"
             }}</mat-icon>
           </button>
-          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          @if (registerForm.get('password')?.invalid &&
+          registerForm.get('password')?.touched) {
           <mat-error>{{ getPasswordErrorMessage() }}</mat-error>
           }
         </mat-form-field>

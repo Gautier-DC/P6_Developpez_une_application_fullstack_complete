@@ -42,7 +42,8 @@
           matTooltipPosition="above"
         />
         <mat-hint>Laisser vide pour conserver le mot de passe actuel</mat-hint>
-        @if (passwordField.invalid && passwordField.touched && userProfile.password.trim()) {
+        @if (passwordField.invalid && passwordField.touched &&
+        userProfile.password.trim()) {
         <mat-error>{{ getPasswordErrorMessage(passwordField) }}</mat-error>
         }
       </mat-form-field>

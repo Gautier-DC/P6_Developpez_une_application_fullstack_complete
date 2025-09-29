@@ -12,7 +12,15 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatSidenavModule, MatListModule, RouterLink],
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatSidenavModule,
+    MatListModule,
+    RouterLink,
+  ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
@@ -29,13 +37,12 @@ export class HeaderComponent {
 
   onLogoutClick(): void {
     this.authService.logout().subscribe({
-      next: (response) => {
-        console.log('✅ Logout successful:', response);
+      next: () => {
       },
       error: (error) => {
         console.error('❌ Logout failed:', error);
         // Even if error, user is still logged out locally
-      }
+      },
     });
   }
 

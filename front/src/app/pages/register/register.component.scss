@@ -34,12 +34,11 @@
   margin-top: 0.5rem;
 }
 
-// Responsive design
 @media (max-width: 480px) {
   .register-container {
     padding: 0.5rem;
   }
-  
+
   .register-card {
     max-width: 100%;
   }

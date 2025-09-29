@@ -55,16 +55,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(
             Exception ex, WebRequest request) {
-        
-        log.warn("Invalid credentials: {}", ex.getMessage());
-        
+
+        log.warn("Invalid credentials attempt from: {}", request.getDescription(false));
+
         ErrorResponse errorResponse = new ErrorResponse(
             "INVALID_CREDENTIALS",
-            "Invalid email or password",
+            "Email ou mot de passe invalide",
             HttpStatus.UNAUTHORIZED.value(),
             request.getDescription(false).replace("uri=", "")
         );
-        
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
     
@@ -87,16 +87,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFound(
             UsernameNotFoundException ex, WebRequest request) {
-        
+
+        // For login requests, treat as invalid credentials (security measure)
+        if (request.getDescription(false).contains("/api/auth/login")) {
+            log.warn("Authentication attempt with non-existent user from: {}", request.getDescription(false));
+
+            ErrorResponse errorResponse = new ErrorResponse(
+                "INVALID_CREDENTIALS",
+                "Email ou mot de passe invalide",
+                HttpStatus.UNAUTHORIZED.value(),
+                request.getDescription(false).replace("uri=", "")
+            );
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+
+        // For other requests, return 404
         log.warn("Username not found: {}", ex.getMessage());
-        
+
         ErrorResponse errorResponse = new ErrorResponse(
             "USER_NOT_FOUND",
             "User not found",
             HttpStatus.NOT_FOUND.value(),
             request.getDescription(false).replace("uri=", "")
         );
-        
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
     

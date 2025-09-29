@@ -3,11 +3,11 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-    selector: 'app-home',
-    standalone: true,
-    imports: [MatButtonModule],
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss']
+  selector: 'app-home',
+  standalone: true,
+  imports: [MatButtonModule],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
   title = 'Welcome to MDD';

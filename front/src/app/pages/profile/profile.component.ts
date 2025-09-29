@@ -70,8 +70,7 @@ export class ProfileComponent implements OnInit {
         this.userProfile.username = user.username || '';
         this.userProfile.email = user.email || '';
       },
-      error: (error) => {
-        console.log('Could not fetch fresh user data:', error);
+      error: () => {
         // Keep using cached data
       },
     });
@@ -102,7 +101,6 @@ export class ProfileComponent implements OnInit {
     // Call the API
     this.authService.updateProfile(updateData).subscribe({
       next: (updatedUser) => {
-        console.log('✅ Profile updated successfully:', updatedUser);
 
         // Update local form with fresh data
         this.userProfile.username = updatedUser.username;

@@ -1,5 +1,10 @@
 import { Directive } from '@angular/core';
-import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
+import {
+  AbstractControl,
+  NG_VALIDATORS,
+  ValidationErrors,
+  Validator,
+} from '@angular/forms';
 import { passwordValidator } from '../validators/password.validator';
 
 @Directive({
@@ -9,12 +14,11 @@ import { passwordValidator } from '../validators/password.validator';
     {
       provide: NG_VALIDATORS,
       useExisting: PasswordValidationDirective,
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class PasswordValidationDirective implements Validator {
-
   validate(control: AbstractControl): ValidationErrors | null {
     return passwordValidator()(control);
   }

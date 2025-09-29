@@ -6,7 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openclassrooms.mddapi.model.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponse {
 
     @Schema(description = "User's ID", example = "1")
@@ -26,16 +32,6 @@ public class UserResponse {
     @Schema(description = "Account update timestamp", example = "2023-10-05T14:48:00Z")
     private LocalDateTime updatedAt;
 
-    public UserResponse() {}
-
-    public UserResponse(Long id, String email, String username, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.email = email;
-        this.username = username;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
     // Constructor from User entity
     public UserResponse(User user) {
         this.id = user.getId();
@@ -48,26 +44,5 @@ public class UserResponse {
     // Static factory method (alternative to constructor)
     public static UserResponse fromUser(User user) {
         return new UserResponse(user);
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

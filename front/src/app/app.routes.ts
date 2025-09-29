@@ -9,50 +9,76 @@ export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
-    canActivate: [guestGuard]
+    canActivate: [guestGuard],
   },
-  
-  // Guest routes (login, register) with guestGuard 
-  { 
-    path: 'register', 
+
+  // Guest routes (login, register) with guestGuard
+  {
+    path: 'register',
     component: RegisterComponent,
-    canActivate: [guestGuard]
+    canActivate: [guestGuard],
   },
-  
-  { 
-    path: 'login', 
-    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
-    canActivate: [guestGuard]
+
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+    canActivate: [guestGuard],
   },
   {
     path: 'articles',
-    loadComponent: () => import('./pages/articles/articles.component').then(m => m.ArticlesComponent),
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./pages/articles/articles.component').then(
+        (m) => m.ArticlesComponent
+      ),
+    canActivate: [authGuard],
   },
   {
     path: 'articles/:id',
-    loadComponent: () => import('./pages/article-detail/article-detail.component').then(m => m.ArticleDetailComponent),
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./pages/article-detail/article-detail.component').then(
+        (m) => m.ArticleDetailComponent
+      ),
+    canActivate: [authGuard],
   },
   {
     path: 'create-article',
-    loadComponent: () => import('./pages/create-article/create-article.component').then(m => m.CreateArticleComponent),
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./pages/create-article/create-article.component').then(
+        (m) => m.CreateArticleComponent
+      ),
+    canActivate: [authGuard],
   },
   {
     path: 'themes',
-    loadComponent: () => import('./pages/themes/themes.component').then(m => m.ThemesComponent),
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./pages/themes/themes.component').then((m) => m.ThemesComponent),
+    canActivate: [authGuard],
   },
-  { 
-    path: 'profile', 
-    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
-    canActivate: [authGuard]
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./pages/profile/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+    canActivate: [authGuard],
   },
-  
-  // Page 404 - Home redirection
-  { 
-    path: '**', 
-    redirectTo: '' 
-  }
+
+  // Explicit 404 route
+  {
+    path: '404',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
+
+  // Page 404 - NotFound component for any unmatched routes
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
 ];

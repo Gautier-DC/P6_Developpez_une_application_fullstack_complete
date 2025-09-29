@@ -15,7 +15,10 @@ export function passwordValidator(): ValidatorFn {
 
     // Minimum 8 characters
     if (trimmedPassword.length < 8) {
-      errors['minLength'] = { requiredLength: 8, actualLength: trimmedPassword.length };
+      errors['minLength'] = {
+        requiredLength: 8,
+        actualLength: trimmedPassword.length,
+      };
     }
 
     // At least one digit
