@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ArticleService } from '../../services/article.service';
+import { DateService } from '../../services/date.service';
 import {
   Article,
   Comment,
@@ -37,6 +38,7 @@ export class ArticleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private articleService = inject(ArticleService);
+  private dateService = inject(DateService);
 
   article: Article | null = null;
   comments: Comment[] = [];
@@ -110,11 +112,7 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return this.dateService.formatDateTime(dateString);
   }
 
   onBackClick(): void {

@@ -12,20 +12,20 @@
   <button mat-button class="sort-button" (click)="toggleSort()">
     Trier par
     <mat-icon iconPositionEnd>{{
-      sortOrder === "desc" ? "keyboard_arrow_down" : "keyboard_arrow_up"
+      sortOrder() === "desc" ? "keyboard_arrow_down" : "keyboard_arrow_up"
     }}</mat-icon>
   </button>
 </div>
-@if(isLoading) {
+@if(isLoading()) {
 <div class="loading-container">
   <mat-spinner></mat-spinner>
 </div>
 }
 
 <!-- Articles grid -->
-@if(!isLoading && articles.length > 0) {
+@if(!isLoading() && articles().length > 0) {
 <div class="articles-grid">
-  @for (article of articles; track article.id) {
+  @for (article of articles(); track article.id) {
   <app-card
     [title]="article.title"
     [author]="article.authorUsername"
@@ -38,7 +38,7 @@
 </div>
 }
 <!-- Empty state -->
-@if(!isLoading && articles.length === 0) {
+@if(!isLoading() && articles().length === 0) {
 <div class="empty-state">
   <p>Aucun article disponible pour le moment.</p>
   <button mat-raised-button color="primary" (click)="onCreateArticle()">

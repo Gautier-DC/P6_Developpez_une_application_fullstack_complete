@@ -13,6 +13,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ArticleService } from '../../services/article.service';
+import { ArticleStateService } from '../../services/article-state.service';
 import { ThemeService } from '../../services/theme.service';
 import { Theme, CreateArticleRequest } from '../../models/article.models';
 import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
@@ -38,6 +39,7 @@ import { BackButtonComponent } from 'src/app/components/back-button/back-button.
 })
 export class CreateArticleComponent implements OnInit {
   private articleService = inject(ArticleService);
+  private articleStateService = inject(ArticleStateService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -173,6 +175,9 @@ export class CreateArticleComponent implements OnInit {
 
     this.articleService.createArticle(createRequest).subscribe({
       next: () => {
+        // Clear the cache to force reload of articles
+        this.articleStateService.clearCache();
+
         this.snackBar.open('Article créé avec succès !', 'Fermer', {
           duration: 3000,
           panelClass: ['success-snackbar'],
