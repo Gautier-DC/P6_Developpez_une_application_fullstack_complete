@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ThemeService } from '../../services/theme.service';
@@ -15,10 +15,19 @@ import { CardComponent } from '../../components/card/card.component';
 export class ThemesComponent implements OnInit {
   private themeService = inject(ThemeService);
 
-  themes: Theme[] = [];
-  subscribedThemes: Set<number> = new Set();
-  isLoading = true;
-  processingThemes: Set<number> = new Set();
+  // Signals for reactive state management
+  private readonly _themes = signal<Theme[]>([]);
+  private readonly _subscribedThemes = signal(new Set<number>());
+  private readonly _isLoading = signal(true);
+  private readonly _processingThemes = signal(new Set<number>());
+
+  // Public readonly signals
+  readonly themes = this._themes.asReadonly();
+  readonly isLoading = this._isLoading.asReadonly();
+
+  // Computed signals for derived state
+  readonly subscribedThemes = computed(() => this._subscribedThemes());
+  readonly processingThemes = computed(() => this._processingThemes());
 
   ngOnInit(): void {
     this.loadThemes();
@@ -26,15 +35,15 @@ export class ThemesComponent implements OnInit {
   }
 
   loadThemes(): void {
-    this.isLoading = true;
+    this._isLoading.set(true);
     this.themeService.getAllThemes().subscribe({
       next: (themes) => {
-        this.themes = themes;
-        this.isLoading = false;
+        this._themes.set(themes);
+        this._isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading themes:', error);
-        this.isLoading = false;
+        this._isLoading.set(false);
       },
     });
   }
@@ -42,7 +51,7 @@ export class ThemesComponent implements OnInit {
   loadUserSubscriptions(): void {
     this.themeService.getUserSubscriptions().subscribe({
       next: (subscriptions) => {
-        this.subscribedThemes = new Set(subscriptions);
+        this._subscribedThemes.set(new Set(subscriptions));
       },
       error: (error) => {
         console.error('Error loading user subscriptions:', error);
@@ -51,12 +60,16 @@ export class ThemesComponent implements OnInit {
   }
 
   onSubscribeToggle(theme: Theme): void {
-    if (this.processingThemes.has(theme.id)) {
+    if (this._processingThemes().has(theme.id)) {
       return;
     }
 
-    this.processingThemes.add(theme.id);
-    const isSubscribed = this.subscribedThemes.has(theme.id);
+    // Add to processing set
+    const newProcessing = new Set(this._processingThemes());
+    newProcessing.add(theme.id);
+    this._processingThemes.set(newProcessing);
+
+    const isSubscribed = this._subscribedThemes().has(theme.id);
 
     if (isSubscribed) {
       this.unsubscribeFromTheme(theme);
@@ -68,12 +81,22 @@ export class ThemesComponent implements OnInit {
   private subscribeToTheme(theme: Theme): void {
     this.themeService.subscribeToTheme(theme.id).subscribe({
       next: () => {
-        this.subscribedThemes.add(theme.id);
-        this.processingThemes.delete(theme.id);
+        // Add to subscribed themes
+        const newSubscribed = new Set(this._subscribedThemes());
+        newSubscribed.add(theme.id);
+        this._subscribedThemes.set(newSubscribed);
+
+        // Remove from processing
+        const newProcessing = new Set(this._processingThemes());
+        newProcessing.delete(theme.id);
+        this._processingThemes.set(newProcessing);
       },
       error: (error) => {
         console.error('Error subscribing to theme:', error);
-        this.processingThemes.delete(theme.id);
+        // Remove from processing on error
+        const newProcessing = new Set(this._processingThemes());
+        newProcessing.delete(theme.id);
+        this._processingThemes.set(newProcessing);
       },
     });
   }
@@ -81,32 +104,47 @@ export class ThemesComponent implements OnInit {
   private unsubscribeFromTheme(theme: Theme): void {
     this.themeService.unsubscribeFromTheme(theme.id).subscribe({
       next: () => {
-        this.subscribedThemes.delete(theme.id);
-        this.processingThemes.delete(theme.id);
+        // Remove from subscribed themes
+        const newSubscribed = new Set(this._subscribedThemes());
+        newSubscribed.delete(theme.id);
+        this._subscribedThemes.set(newSubscribed);
+
+        // Remove from processing
+        const newProcessing = new Set(this._processingThemes());
+        newProcessing.delete(theme.id);
+        this._processingThemes.set(newProcessing);
       },
       error: (error) => {
         console.error('Error unsubscribing from theme:', error);
-        this.processingThemes.delete(theme.id);
+        // Remove from processing on error
+        const newProcessing = new Set(this._processingThemes());
+        newProcessing.delete(theme.id);
+        this._processingThemes.set(newProcessing);
       },
     });
   }
 
+  // Utility methods for template
   isSubscribed(themeId: number): boolean {
-    return this.subscribedThemes.has(themeId);
+    return this._subscribedThemes().has(themeId);
   }
 
   isProcessing(themeId: number): boolean {
-    return this.processingThemes.has(themeId);
+    return this._processingThemes().has(themeId);
   }
 
   getButtonText(theme: Theme): string {
-    if (this.isProcessing(theme.id)) {
-      return this.isSubscribed(theme.id) ? 'Désabonnement...' : 'Abonnement...';
+    const isProcessing = this._processingThemes().has(theme.id);
+    const isSubscribed = this._subscribedThemes().has(theme.id);
+
+    if (isProcessing) {
+      return isSubscribed ? 'Désabonnement...' : 'Abonnement...';
     }
-    return this.isSubscribed(theme.id) ? 'Déjà abonné' : "S'abonner";
+    return isSubscribed ? 'Déjà abonné' : "S'abonner";
   }
 
   getButtonColor(theme: Theme): 'primary' | 'accent' | 'warn' {
-    return this.isSubscribed(theme.id) ? 'warn' : 'primary';
+    const isSubscribed = this._subscribedThemes().has(theme.id);
+    return isSubscribed ? 'warn' : 'primary';
   }
 }
